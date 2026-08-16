@@ -98,6 +98,15 @@ frontend/src/
 - Verified via curl end-to-end: category averaging, weighted readiness math, and focus-next selection all hand-checked against the formulas.
 - No frontend yet — per explicit sequencing, this is backend/logic first; UI (results card, practice-question panel, percentile display) comes in a later design round alongside steps 9-10.
 
+## Peer-benchmarking (backend only, no UI yet)
+
+- Plain SQL aggregation, deliberately no ML — percentile rank is fully explainable and doesn't need a model, per the original spec ("don't over-engineer").
+- `benchmark_service.py`: `_percentile_rank` uses the mean-percentile-rank method (fraction of cohort strictly below you + half the fraction tied with you) — standard tie handling, hand-verified with a 4-user cohort (two 100s, two 0s → both pairs land at 75th/25th percentile respectively, not 50/50 or 100/0).
+- Two endpoints: `GET /quizzes/{id}/benchmark` (best-score percentile within that quiz's cohort) and `GET /courses/{id}/benchmark` (percentile of your average best-score-pct across the course's quizzes, vs. others who've attempted at least one). Both return `cohort_size` alongside the percentile so a future UI can decide whether to show a "too few peers yet" caveat for small cohorts — that threshold decision itself is deferred, not decided here.
+- A learner who hasn't attempted anything in that quiz/course gets `your_*_score_pct: null, percentile: null` rather than a 404 — the course/quiz itself still exists, they just have no personal data point yet.
+- Verified end-to-end via curl with a real 4-learner cohort plus a 5th never-attempted learner.
+- No frontend yet, same sequencing as the skill-gap matcher.
+
 ## Design system: Midnight/Daylight Editorial (complete — all 8 screens)
 
 - Designed via the **Superdesign** CLI (not any other tool) for the initial direction; refined through a full **Impeccable** pass (critique → adapt → typeset → layout → animate → delight → harden → audit → polish). Style direction, palette, and component patterns live in `.superdesign/design-system.md`; draft history/resume state in `.superdesign/resume.json`. See `DESIGN.md` for the current summary.
