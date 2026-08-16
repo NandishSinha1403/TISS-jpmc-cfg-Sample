@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import CoursesPage from './pages/CoursesPage'
 import CourseDetailPage from './pages/CourseDetailPage'
+import QuizPage from './pages/QuizPage'
 import AdminCoursesPage from './pages/AdminCoursesPage'
 import RequireAuth from './components/RequireAuth'
 import './App.css'
@@ -50,6 +51,14 @@ function App() {
         element={
           <RequireAuth>
             <CourseDetailPage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/quizzes/:quizId"
+        element={
+          <RequireAuth>
+            <QuizPage />
           </RequireAuth>
         }
       />

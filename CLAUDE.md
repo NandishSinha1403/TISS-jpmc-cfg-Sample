@@ -58,6 +58,13 @@ frontend/src/
 - Modules are always addressed under their course (`/courses/{course_id}/modules/{module_id}`) — no standalone module endpoints.
 - Frontend: `/courses` (learner browse), `/courses/:courseId` (module reader), `/admin/courses` (admin CRUD, role-gated by `RequireAuth roles={['admin']}`).
 
+## Assessments
+
+- `Quiz` belongs to a `Course` (not a module) — this is the granularity progress tracking, certification, and skill-gap matching (steps 6-8) will key off. `Question` (MCQ) belongs to a `Quiz`, has a `difficulty` field unused for now but reserved for adaptive difficulty (step 5). `QuizAttempt` records each learner submission with score/pass and raw answers.
+- Auto-scoring happens server-side in `assessment_service.submit_attempt` — the client only sends `{question_id: selected_index}`.
+- Security-relevant: `GET /quizzes/{id}` returns different schemas by role — `QuizLearnerDetailResponse` never includes `correct_index`; only `QuizAdminDetailResponse` does. Do not merge these schemas.
+- Frontend: `/quizzes/:quizId` (learner take-quiz + result), admin quiz/question builder is inline inside `AdminCoursesPage`'s course row.
+
 ## Conventions
 
 - Routes never contain business logic — call a `services/` function.

@@ -1,16 +1,21 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getCourse } from "../api/courses";
+import { listQuizzes } from "../api/assessments";
 
 export default function CourseDetailPage() {
   const { courseId } = useParams();
   const [course, setCourse] = useState(null);
+  const [quizzes, setQuizzes] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getCourse(courseId)
-      .then(setCourse)
+    Promise.all([getCourse(courseId), listQuizzes(courseId)])
+      .then(([courseData, quizzesData]) => {
+        setCourse(courseData);
+        setQuizzes(quizzesData);
+      })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [courseId]);
@@ -33,6 +38,15 @@ export default function CourseDetailPage() {
           <p>{module.content}</p>
         </article>
       ))}
+      <h2>Quizzes</h2>
+      {quizzes.length === 0 && <p>No quizzes yet.</p>}
+      <ul>
+        {quizzes.map((quiz) => (
+          <li key={quiz.id}>
+            <Link to={`/quizzes/${quiz.id}`}>{quiz.title}</Link>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
