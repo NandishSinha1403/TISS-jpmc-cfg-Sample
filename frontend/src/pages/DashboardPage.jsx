@@ -6,6 +6,7 @@ import { getCourseCertificate } from "../api/certificates";
 import { useAuth } from "../context/AuthContext";
 import ProgressBar from "../components/ProgressBar";
 import StatusBadge from "../components/StatusBadge";
+import ErrorPanel from "../components/ErrorPanel";
 
 function ArrowIcon() {
   return (
@@ -91,7 +92,9 @@ export default function DashboardPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  function loadDashboard() {
+    setError("");
+    setLoading(true);
     listCourses()
       .then(async (courses) => {
         const withProgress = await Promise.all(
@@ -110,7 +113,9 @@ export default function DashboardPage() {
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, []);
+  }
+
+  useEffect(loadDashboard, []);
 
   const { featured, rest, avgProgress } = useMemo(() => {
     if (enrolled.length === 0) return { featured: null, rest: [], avgProgress: 0 };
@@ -125,7 +130,7 @@ export default function DashboardPage() {
   }, [enrolled]);
 
   if (loading) return <div className="content"><p>Loading dashboard...</p></div>;
-  if (error) return <div className="content"><p role="alert">{error}</p></div>;
+  if (error) return <div className="content"><ErrorPanel message={error} onRetry={loadDashboard} /></div>;
 
   return (
     <div className="content">

@@ -6,6 +6,7 @@ import { completeModule, getCourseProgress } from "../api/progress";
 import { downloadCertificatePdf, getCourseCertificate } from "../api/certificates";
 import ProgressBar from "../components/ProgressBar";
 import StatusBadge from "../components/StatusBadge";
+import ErrorPanel from "../components/ErrorPanel";
 
 export default function CourseDetailPage() {
   const { courseId } = useParams();
@@ -14,51 +15,57 @@ export default function CourseDetailPage() {
   const [progress, setProgress] = useState(null);
   const [certificate, setCertificate] = useState(null);
   const [error, setError] = useState("");
+  const [actionError, setActionError] = useState("");
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
 
   function loadAll() {
+    setError("");
+    setLoading(true);
     return Promise.all([
       getCourse(courseId),
       listQuizzes(courseId),
       getCourseProgress(courseId),
       getCourseCertificate(courseId),
-    ]).then(([courseData, quizzesData, progressData, certificateData]) => {
-      setCourse(courseData);
-      setQuizzes(quizzesData);
-      setProgress(progressData);
-      setCertificate(certificateData);
-    });
+    ])
+      .then(([courseData, quizzesData, progressData, certificateData]) => {
+        setCourse(courseData);
+        setQuizzes(quizzesData);
+        setProgress(progressData);
+        setCertificate(certificateData);
+      })
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
   }
 
   async function handleDownloadCertificate() {
+    setActionError("");
     setDownloading(true);
     try {
       await downloadCertificatePdf(certificate.id);
     } catch (err) {
-      setError(err.message);
+      setActionError(err.message);
     } finally {
       setDownloading(false);
     }
   }
 
   useEffect(() => {
-    loadAll()
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
+    loadAll();
   }, [courseId]);
 
   async function handleCompleteModule(moduleId) {
+    setActionError("");
     try {
       await completeModule(moduleId);
       setProgress(await getCourseProgress(courseId));
     } catch (err) {
-      setError(err.message);
+      setActionError(err.message);
     }
   }
 
   if (loading) return <div className="content"><p>Loading...</p></div>;
-  if (error) return <div className="content"><p role="alert">{error}</p></div>;
+  if (error) return <div className="content"><ErrorPanel message={error} onRetry={loadAll} /></div>;
 
   const completedModuleIds = new Set(progress.completed_module_ids);
   const quizProgressByQuizId = Object.fromEntries(progress.quizzes.map((q) => [q.quiz_id, q]));
@@ -71,6 +78,7 @@ export default function CourseDetailPage() {
       <h1>{course.title}</h1>
       <p className="prose">{course.description}</p>
       <ProgressBar percent={progress.pct_complete} label="Course progress" />
+      {actionError && <p className="form-error">{actionError}</p>}
 
       {certificate && (
         <div className="card cert-callout">

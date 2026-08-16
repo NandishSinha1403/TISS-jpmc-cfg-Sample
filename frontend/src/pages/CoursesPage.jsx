@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { listCourses } from "../api/courses";
 import { useAuth } from "../context/AuthContext";
+import ErrorPanel from "../components/ErrorPanel";
 
 export default function CoursesPage() {
   const { user } = useAuth();
@@ -9,12 +10,16 @@ export default function CoursesPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  function load() {
+    setError("");
+    setLoading(true);
     listCourses()
       .then(setCourses)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, []);
+  }
+
+  useEffect(load, []);
 
   return (
     <div className="content">
@@ -28,21 +33,23 @@ export default function CoursesPage() {
       </div>
 
       {loading && <p>Loading...</p>}
-      {error && <p role="alert" className="form-error">{error}</p>}
+      {error && <ErrorPanel message={error} onRetry={load} />}
 
-      {!loading && courses.length === 0 ? (
+      {!loading && !error && courses.length === 0 ? (
         <div className="empty-panel">
           <p>No courses yet.</p>
         </div>
       ) : (
-        <div className="catalog-list">
-          {courses.map((course) => (
-            <Link to={`/courses/${course.id}`} className="catalog-row" key={course.id}>
-              <span className="catalog-row-title">{course.title}</span>
-              <span className="catalog-row-desc">{course.description}</span>
-            </Link>
-          ))}
-        </div>
+        !error && (
+          <div className="catalog-list">
+            {courses.map((course) => (
+              <Link to={`/courses/${course.id}`} className="catalog-row" key={course.id}>
+                <span className="catalog-row-title">{course.title}</span>
+                <span className="catalog-row-desc">{course.description}</span>
+              </Link>
+            ))}
+          </div>
+        )
       )}
     </div>
   );

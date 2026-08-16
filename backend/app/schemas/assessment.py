@@ -97,12 +97,24 @@ class QuizSubmission(BaseModel):
     answers: dict[str, int]  # question_id -> selected option index
 
 
+class QuestionReviewItem(BaseModel):
+    """Per-question review, safe to reveal only after the attempt is finalized."""
+
+    question_id: str
+    text: str
+    options: list[str]
+    correct_index: int
+    selected_index: int | None
+    is_correct: bool
+
+
 class QuizResultResponse(BaseModel):
     quiz_id: str
     score_pct: float
     passed: bool
     correct_count: int
     total_questions: int
+    questions: list[QuestionReviewItem] = []
 
 
 class AdaptiveAnswerSubmission(BaseModel):

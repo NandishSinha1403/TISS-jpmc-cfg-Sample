@@ -158,42 +158,93 @@ function QuizResult({ quiz, result, newCertificate }) {
 
   if (newCertificate) {
     return (
-      <div className="result-panel result-panel--certified">
-        <span className="certified-seal">
-          <svg width="56" height="56" viewBox="0 0 56 56" fill="none" aria-hidden="true">
-            <circle cx="28" cy="28" r="25" stroke="currentColor" strokeWidth="2" />
-            <path d="M17 28.5L24 35.5L39 19.5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </span>
-        <p className="eyebrow">Course complete</p>
-        <h1 className="certified-title">You&rsquo;re certified.</h1>
-        <p className="certified-subtitle">
-          You passed every assessment in this course — your certificate is ready.
-        </p>
-        <div className="certified-actions">
-          <button type="button" className="btn btn-primary" onClick={handleDownload} disabled={downloading}>
-            {downloading ? "Downloading..." : "Download certificate"}
-          </button>
-          <Link to={`/courses/${quiz.course_id}`} className="btn btn-secondary">
-            Back to course
-          </Link>
+      <div>
+        <div className="result-panel result-panel--certified">
+          <span className="certified-seal">
+            <svg width="56" height="56" viewBox="0 0 56 56" fill="none" aria-hidden="true">
+              <circle cx="28" cy="28" r="25" stroke="currentColor" strokeWidth="2" />
+              <path d="M17 28.5L24 35.5L39 19.5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
+          <p className="eyebrow">Course complete</p>
+          <h1 className="certified-title">You&rsquo;re certified.</h1>
+          <p className="certified-subtitle">
+            You passed every assessment in this course — your certificate is ready.
+          </p>
+          <div className="certified-actions">
+            <button type="button" className="btn btn-primary" onClick={handleDownload} disabled={downloading}>
+              {downloading ? "Downloading..." : "Download certificate"}
+            </button>
+            <Link to={`/courses/${quiz.course_id}`} className="btn btn-secondary">
+              Back to course
+            </Link>
+          </div>
         </div>
+        {result.questions.length > 0 && <QuestionReview questions={result.questions} />}
       </div>
     );
   }
 
   return (
-    <div className="result-panel">
-      <p className="result-score">{result.score_pct.toFixed(0)}%</p>
-      <StatusBadge tone={result.passed ? "success" : "warning"}>
-        {result.passed ? "Passed" : "Not passed"}
-      </StatusBadge>
-      <p>
-        {result.correct_count}/{result.total_questions} correct
-      </p>
-      <Link to={`/courses/${quiz.course_id}`} className="btn btn-secondary">
-        Back to course
-      </Link>
+    <div>
+      <div className="result-panel">
+        <p className="result-score">{result.score_pct.toFixed(0)}%</p>
+        <StatusBadge tone={result.passed ? "success" : "warning"}>
+          {result.passed ? "Passed" : "Not passed"}
+        </StatusBadge>
+        <p>
+          {result.correct_count}/{result.total_questions} correct
+        </p>
+        <div className="result-actions">
+          <Link to={`/courses/${quiz.course_id}`} className="btn btn-secondary">
+            Back to course
+          </Link>
+        </div>
+      </div>
+      {result.questions.length > 0 && <QuestionReview questions={result.questions} />}
+    </div>
+  );
+}
+
+function QuestionReview({ questions }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="review-section">
+      <button type="button" className="btn btn-secondary review-toggle" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
+        {open ? "Hide answer review" : "Review your answers"}
+      </button>
+      {open && (
+        <div className="review-list">
+          {questions.map((q, i) => (
+            <div className="card review-item" key={q.question_id}>
+              <div className="review-item-head">
+                <span className="eyebrow">Question {i + 1}</span>
+                <StatusBadge tone={q.is_correct ? "success" : "warning"}>
+                  {q.is_correct ? "Correct" : "Incorrect"}
+                </StatusBadge>
+              </div>
+              <p className="question-text">{q.text}</p>
+              {q.options.map((option, idx) => {
+                const isYourAnswer = idx === q.selected_index;
+                const isCorrectAnswer = idx === q.correct_index;
+                return (
+                  <div
+                    key={idx}
+                    className={`review-option ${isCorrectAnswer ? "review-option--correct" : ""} ${
+                      isYourAnswer && !isCorrectAnswer ? "review-option--wrong" : ""
+                    }`}
+                  >
+                    <span>{option}</span>
+                    {isCorrectAnswer && <span className="review-tag">Correct answer</span>}
+                    {isYourAnswer && !isCorrectAnswer && <span className="review-tag">Your answer</span>}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

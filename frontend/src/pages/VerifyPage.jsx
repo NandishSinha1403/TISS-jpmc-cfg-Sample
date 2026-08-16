@@ -2,22 +2,38 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { verifyCertificate } from "../api/certificates";
 import StatusBadge from "../components/StatusBadge";
+import ErrorPanel from "../components/ErrorPanel";
 
 export default function VerifyPage() {
   const { certificateId } = useParams();
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
+  function load() {
+    setError("");
+    setLoading(true);
     verifyCertificate(certificateId)
       .then(setResult)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [certificateId]);
+  }
+
+  useEffect(load, [certificateId]);
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(result.certificate_id);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // clipboard access denied — silently no-op, copy is a convenience, not required
+    }
+  }
 
   if (loading) return <div className="content content--narrow"><p>Verifying...</p></div>;
-  if (error) return <div className="content content--narrow"><p role="alert">{error}</p></div>;
+  if (error) return <div className="content content--narrow"><ErrorPanel message={error} onRetry={load} /></div>;
 
   if (!result.valid) {
     return (
@@ -43,7 +59,12 @@ export default function VerifyPage() {
         </div>
         <div className="verify-record-row">
           <span className="eyebrow">Certificate ID</span>
-          <span className="mono-id">{result.certificate_id}</span>
+          <span className="verify-id-row">
+            <span className="mono-id">{result.certificate_id}</span>
+            <button type="button" className="btn btn-secondary copy-btn" onClick={handleCopy}>
+              {copied ? "Copied" : "Copy"}
+            </button>
+          </span>
         </div>
       </div>
     </div>

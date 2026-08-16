@@ -78,6 +78,21 @@ def _score_answers(questions: list[Question], answers: dict[str, int]) -> tuple[
     return correct, total, score_pct
 
 
+def build_question_review(questions: list[Question], answers: dict[str, int]) -> list[dict]:
+    """Per-question review, safe only once the attempt is finalized."""
+    return [
+        {
+            "question_id": q.id,
+            "text": q.text,
+            "options": q.options,
+            "correct_index": q.correct_index,
+            "selected_index": answers.get(q.id),
+            "is_correct": answers.get(q.id) == q.correct_index,
+        }
+        for q in questions
+    ]
+
+
 def submit_attempt(db: Session, quiz_id: str, user: User, submission: QuizSubmission) -> QuizAttempt:
     quiz = (
         db.query(Quiz).options(joinedload(Quiz.questions)).filter(Quiz.id == quiz_id).first()

@@ -100,6 +100,7 @@ def submit_quiz(
         passed=attempt.passed,
         correct_count=correct_count,
         total_questions=len(quiz.questions),
+        questions=assessment_service.build_question_review(quiz.questions, attempt.answers),
     )
 
 
@@ -153,6 +154,7 @@ def answer_adaptive_quiz(
         correct_count, total_questions, score_pct, passed = final
         quiz = assessment_service.get_quiz(db, quiz_id)
         certificate_service.check_and_issue_certificate(db, quiz.course_id, current_user)
+        asked_questions = [q for q in quiz.questions if q.id in session.asked_question_ids]
         return AdaptiveSessionResult(
             session_id=session.id,
             result=QuizResultResponse(
@@ -161,6 +163,7 @@ def answer_adaptive_quiz(
                 passed=passed,
                 correct_count=correct_count,
                 total_questions=total_questions,
+                questions=assessment_service.build_question_review(asked_questions, session.answers),
             ),
         )
 
