@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { answerAdaptiveQuiz, getQuiz, startAdaptiveQuiz, submitQuiz } from "../api/assessments";
 import StatusBadge from "../components/StatusBadge";
@@ -70,16 +70,23 @@ function StaticQuiz({ quiz }) {
   );
 }
 
+const DIFFICULTY_RANK = { easy: 0, medium: 1, hard: 2 };
+
 function AdaptiveQuiz({ quiz }) {
   const [session, setSession] = useState(null);
   const [result, setResult] = useState(null);
   const [selected, setSelected] = useState(null);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [shift, setShift] = useState(null);
+  const prevDifficulty = useRef(null);
 
   useEffect(() => {
     startAdaptiveQuiz(quiz.id)
-      .then(setSession)
+      .then((s) => {
+        prevDifficulty.current = s.question.difficulty;
+        setSession(s);
+      })
       .catch((err) => setError(err.message));
   }, [quiz.id]);
 
@@ -97,6 +104,10 @@ function AdaptiveQuiz({ quiz }) {
       if (response.completed) {
         setResult(response.result);
       } else {
+        const prevRank = DIFFICULTY_RANK[prevDifficulty.current];
+        const nextRank = DIFFICULTY_RANK[response.question.difficulty];
+        setShift(nextRank > prevRank ? "up" : nextRank < prevRank ? "down" : null);
+        prevDifficulty.current = response.question.difficulty;
         setSession(response);
       }
     } catch (err) {
@@ -113,14 +124,17 @@ function AdaptiveQuiz({ quiz }) {
   return (
     <>
       <h1>{quiz.title}</h1>
-      <div className="adaptive-readout">
+      <div className="adaptive-readout" key={session.question.id}>
         <span className="eyebrow">
           Question {session.question_number} of {session.total_questions}
         </span>
-        <StatusBadge tone="neutral">{session.question.difficulty}</StatusBadge>
+        <span className={`difficulty-badge ${shift ? `difficulty-badge--${shift}` : ""}`}>
+          <StatusBadge tone="neutral">{session.question.difficulty}</StatusBadge>
+        </span>
       </div>
       <form onSubmit={handleSubmit}>
         <QuestionCard
+          key={session.question.id}
           number={session.question_number}
           question={session.question}
           selected={selected}

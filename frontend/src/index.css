@@ -1067,6 +1067,94 @@ textarea {
   }
 }
 
+/* Page entrance — one consistent, fast arrival per route (Operate mode: quick, not a show) */
+.content {
+  animation: page-enter 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* List entrance — capped stagger, only for rows that are genuinely a list */
+.course-list .course-row,
+.cert-ledger .cert-ledger-row,
+.catalog-list .catalog-row {
+  animation: page-enter 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.course-list .course-row:nth-child(1) { animation-delay: 0ms; }
+.course-list .course-row:nth-child(2) { animation-delay: 40ms; }
+.course-list .course-row:nth-child(3) { animation-delay: 80ms; }
+.course-list .course-row:nth-child(n+4) { animation-delay: 120ms; }
+
+.cert-ledger .cert-ledger-row:nth-child(1) { animation-delay: 0ms; }
+.cert-ledger .cert-ledger-row:nth-child(2) { animation-delay: 40ms; }
+.cert-ledger .cert-ledger-row:nth-child(3) { animation-delay: 80ms; }
+.cert-ledger .cert-ledger-row:nth-child(n+4) { animation-delay: 120ms; }
+
+.catalog-list .catalog-row:nth-child(1) { animation-delay: 0ms; }
+.catalog-list .catalog-row:nth-child(2) { animation-delay: 40ms; }
+.catalog-list .catalog-row:nth-child(3) { animation-delay: 80ms; }
+.catalog-list .catalog-row:nth-child(n+4) { animation-delay: 120ms; }
+
+/* Adaptive quiz focal moment: the difficulty change itself is the thing being
+   communicated, not a decorative flourish — each new question's readout
+   arrives with a directional cue matching whether the ladder stepped up or
+   down in response to the previous answer. */
+.question-card {
+  animation: question-enter 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes question-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.difficulty-badge {
+  display: inline-flex;
+}
+
+.difficulty-badge--up .badge,
+.difficulty-badge--down .badge {
+  animation: difficulty-shift 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.difficulty-badge--up .badge {
+  border: 1px solid var(--color-accent);
+}
+
+.difficulty-badge--down .badge {
+  border: 1px solid var(--color-fg-decorative);
+}
+
+@keyframes difficulty-shift {
+  0% {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     animation: none !important;
