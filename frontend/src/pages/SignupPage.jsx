@@ -28,39 +28,41 @@ export default function SignupPage() {
   }
 
   return (
-    <section id="center">
-      <h1>Sign up</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Full name"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-          required
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password (min 8 characters)"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          minLength={8}
-        />
-        <button type="submit" disabled={submitting}>
-          {submitting ? "Creating account..." : "Sign up"}
-        </button>
-      </form>
-      {error && <p role="alert">{error}</p>}
-      <p>
-        Already have an account? <Link to="/login">Log in</Link>
-      </p>
-    </section>
+    <div className="content content--narrow auth-shell">
+      <div className="card auth-card">
+        <h1>Sign up</h1>
+        <form onSubmit={handleSubmit} className="field-list">
+          <input
+            type="text"
+            placeholder="Full name"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            required
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password (min 8 characters)"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={8}
+          />
+          <button type="submit" className="btn btn-primary" disabled={submitting}>
+            {submitting ? "Creating account..." : "Sign up"}
+          </button>
+        </form>
+        {error && <p role="alert" className="form-error">{error}</p>}
+        <p className="auth-switch">
+          Already have an account? <Link to="/login">Log in</Link>
+        </p>
+      </div>
+    </div>
   );
 }

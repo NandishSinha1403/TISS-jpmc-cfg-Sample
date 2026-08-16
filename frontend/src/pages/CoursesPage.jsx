@@ -17,24 +17,33 @@ export default function CoursesPage() {
   }, []);
 
   return (
-    <section id="center">
-      <h1>Courses</h1>
-      {user.role === "admin" && (
-        <p>
-          <Link to="/admin/courses">Manage courses</Link>
-        </p>
-      )}
+    <div className="content">
+      <div className="page-header">
+        <h1>Courses</h1>
+        {user.role === "admin" && (
+          <Link to="/admin/courses" className="btn btn-secondary">
+            Manage courses
+          </Link>
+        )}
+      </div>
+
       {loading && <p>Loading...</p>}
-      {error && <p role="alert">{error}</p>}
-      <ul>
-        {courses.map((course) => (
-          <li key={course.id}>
-            <Link to={`/courses/${course.id}`}>{course.title}</Link>
-            <p>{course.description}</p>
-          </li>
-        ))}
-      </ul>
-      {!loading && courses.length === 0 && <p>No courses yet.</p>}
-    </section>
+      {error && <p role="alert" className="form-error">{error}</p>}
+
+      {!loading && courses.length === 0 ? (
+        <div className="empty-panel">
+          <p>No courses yet.</p>
+        </div>
+      ) : (
+        <div className="catalog-list">
+          {courses.map((course) => (
+            <Link to={`/courses/${course.id}`} className="catalog-row" key={course.id}>
+              <span className="catalog-row-title">{course.title}</span>
+              <span className="catalog-row-desc">{course.description}</span>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

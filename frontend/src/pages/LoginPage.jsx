@@ -25,31 +25,33 @@ export default function LoginPage() {
   }
 
   return (
-    <section id="center">
-      <h1>Log in</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit" disabled={submitting}>
-          {submitting ? "Logging in..." : "Log in"}
-        </button>
-      </form>
-      {error && <p role="alert">{error}</p>}
-      <p>
-        No account? <Link to="/signup">Sign up</Link>
-      </p>
-    </section>
+    <div className="content content--narrow auth-shell">
+      <div className="card auth-card">
+        <h1>Log in</h1>
+        <form onSubmit={handleSubmit} className="field-list">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button type="submit" className="btn btn-primary" disabled={submitting}>
+            {submitting ? "Logging in..." : "Log in"}
+          </button>
+        </form>
+        {error && <p role="alert" className="form-error">{error}</p>}
+        <p className="auth-switch">
+          No account? <Link to="/signup">Sign up</Link>
+        </p>
+      </div>
+    </div>
   );
 }

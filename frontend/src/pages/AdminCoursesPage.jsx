@@ -21,7 +21,7 @@ function ModuleForm({ courseId, onAdded }) {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="field-list admin-subform">
       <input
         placeholder="Module title"
         value={title}
@@ -33,8 +33,10 @@ function ModuleForm({ courseId, onAdded }) {
         value={content}
         onChange={(e) => setContent(e.target.value)}
       />
-      <button type="submit">Add module</button>
-      {error && <p role="alert">{error}</p>}
+      <button type="submit" className="btn btn-secondary">
+        Add module
+      </button>
+      {error && <p role="alert" className="form-error">{error}</p>}
     </form>
   );
 }
@@ -64,10 +66,10 @@ function QuestionForm({ quizId, onAdded }) {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="field-list admin-subform">
       <input placeholder="Question text" value={text} onChange={(e) => setText(e.target.value)} required />
       {options.map((option, idx) => (
-        <div key={idx}>
+        <label className="option-row admin-option-row" key={idx}>
           <input
             type="radio"
             name="correct"
@@ -80,13 +82,15 @@ function QuestionForm({ quizId, onAdded }) {
             onChange={(e) => updateOption(idx, e.target.value)}
             required
           />
-        </div>
+        </label>
       ))}
-      <button type="button" onClick={() => setOptions((prev) => [...prev, ""])}>
+      <button type="button" className="btn btn-secondary" onClick={() => setOptions((prev) => [...prev, ""])}>
         Add option
       </button>
-      <button type="submit">Add question (mark correct with radio)</button>
-      {error && <p role="alert">{error}</p>}
+      <button type="submit" className="btn btn-primary">
+        Add question (mark correct with radio)
+      </button>
+      {error && <p role="alert" className="form-error">{error}</p>}
     </form>
   );
 }
@@ -142,18 +146,27 @@ function QuizManager({ courseId }) {
   }
 
   return (
-    <div>
-      <h4>Quizzes</h4>
-      <ul>
+    <div className="admin-section">
+      <h4 className="admin-section-title">Quizzes</h4>
+      {quizzes.length === 0 && <p className="admin-empty">No quizzes yet.</p>}
+      <div className="admin-row-list">
         {quizzes.map((quiz) => (
-          <li key={quiz.id}>
-            {quiz.title} (pass: {quiz.pass_threshold_pct}%{quiz.adaptive ? `, adaptive, ${quiz.questions_per_attempt}/attempt` : ""})
-            <button type="button" onClick={() => toggleQuiz(quiz.id)}>
-              {expandedQuizId === quiz.id ? "Hide" : "Manage questions"}
-            </button>
+          <div className="admin-row" key={quiz.id}>
+            <div className="admin-row-head">
+              <span>
+                {quiz.title}{" "}
+                <span className="stat-label">
+                  ({quiz.pass_threshold_pct}% pass{quiz.adaptive ? `, adaptive` : ""})
+                </span>
+              </span>
+              <button type="button" className="btn btn-secondary" onClick={() => toggleQuiz(quiz.id)}>
+                {expandedQuizId === quiz.id ? "Hide" : "Manage questions"}
+              </button>
+            </div>
             {expandedQuizId === quiz.id && expandedQuiz && (
-              <div>
-                <ul>
+              <div className="admin-row-body">
+                {expandedQuiz.questions.length === 0 && <p className="admin-empty">No questions yet.</p>}
+                <ul className="admin-plain-list">
                   {expandedQuiz.questions.map((q) => (
                     <li key={q.id}>{q.text}</li>
                   ))}
@@ -161,10 +174,11 @@ function QuizManager({ courseId }) {
                 <QuestionForm quizId={quiz.id} onAdded={() => getQuiz(quiz.id).then(setExpandedQuiz)} />
               </div>
             )}
-          </li>
+          </div>
         ))}
-      </ul>
-      <form onSubmit={handleCreateQuiz}>
+      </div>
+
+      <form onSubmit={handleCreateQuiz} className="field-list admin-subform">
         <input
           placeholder="Quiz title"
           value={title}
@@ -177,7 +191,7 @@ function QuizManager({ courseId }) {
           value={passThreshold}
           onChange={(e) => setPassThreshold(e.target.value)}
         />
-        <label>
+        <label className="admin-checkbox-row">
           <input type="checkbox" checked={adaptive} onChange={(e) => setAdaptive(e.target.checked)} />
           Adaptive difficulty
         </label>
@@ -190,9 +204,11 @@ function QuizManager({ courseId }) {
             min={1}
           />
         )}
-        <button type="submit">Create quiz</button>
+        <button type="submit" className="btn btn-primary">
+          Create quiz
+        </button>
       </form>
-      {error && <p role="alert">{error}</p>}
+      {error && <p role="alert" className="form-error">{error}</p>}
     </div>
   );
 }
@@ -236,32 +252,40 @@ function CourseRow({ course, onChanged }) {
   }
 
   return (
-    <li>
-      <strong>{course.title}</strong>
-      <button type="button" onClick={toggle}>
-        {expanded ? "Hide" : "Manage"}
-      </button>
-      <button type="button" onClick={handleDeleteCourse}>
-        Delete course
-      </button>
-      {error && <p role="alert">{error}</p>}
+    <div className="card admin-course-card">
+      <div className="admin-row-head">
+        <strong>{course.title}</strong>
+        <div className="admin-row-actions">
+          <button type="button" className="btn btn-secondary" onClick={toggle}>
+            {expanded ? "Hide" : "Manage"}
+          </button>
+          <button type="button" className="btn btn-secondary" onClick={handleDeleteCourse}>
+            Delete
+          </button>
+        </div>
+      </div>
+      {error && <p role="alert" className="form-error">{error}</p>}
       {expanded && detail && (
-        <div>
-          <ul>
-            {detail.modules.map((m) => (
-              <li key={m.id}>
-                {m.title}
-                <button type="button" onClick={() => handleDeleteModule(m.id)}>
-                  Remove
-                </button>
-              </li>
-            ))}
-          </ul>
-          <ModuleForm courseId={course.id} onAdded={loadDetail} />
+        <div className="admin-row-body">
+          <div className="admin-section">
+            <h4 className="admin-section-title">Modules</h4>
+            {detail.modules.length === 0 && <p className="admin-empty">No modules yet.</p>}
+            <ul className="admin-plain-list">
+              {detail.modules.map((m) => (
+                <li key={m.id}>
+                  <span>{m.title}</span>
+                  <button type="button" className="btn btn-secondary" onClick={() => handleDeleteModule(m.id)}>
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <ModuleForm courseId={course.id} onAdded={loadDetail} />
+          </div>
           <QuizManager courseId={course.id} />
         </div>
       )}
-    </li>
+    </div>
   );
 }
 
@@ -296,29 +320,36 @@ export default function AdminCoursesPage() {
   }
 
   return (
-    <section id="center">
+    <div className="content">
       <h1>Manage courses</h1>
-      <form onSubmit={handleCreate}>
-        <input
-          placeholder="Course title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
-        <input
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        <button type="submit">Create course</button>
-      </form>
-      {error && <p role="alert">{error}</p>}
+
+      <div className="card admin-create-card">
+        <h3>New course</h3>
+        <form onSubmit={handleCreate} className="field-list">
+          <input
+            placeholder="Course title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
+          <input
+            placeholder="Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+          <button type="submit" className="btn btn-primary">
+            Create course
+          </button>
+        </form>
+        {error && <p role="alert" className="form-error">{error}</p>}
+      </div>
+
       {loading && <p>Loading...</p>}
-      <ul>
+      <div className="admin-course-list">
         {courses.map((course) => (
           <CourseRow key={course.id} course={course} onChanged={refresh} />
         ))}
-      </ul>
-    </section>
+      </div>
+    </div>
   );
 }
