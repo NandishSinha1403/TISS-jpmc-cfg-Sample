@@ -50,8 +50,12 @@ function FeaturedCourse({ entry }) {
   return (
     <Link to={`/courses/${course.id}`} className="featured-course">
       <div className="featured-course-body">
-        <span className="stat-label">{isComplete ? "Completed" : "Continue learning"}</span>
-        <h2 className="featured-course-title">{course.title}</h2>
+        <div className="featured-course-heading">
+          <h2 className="featured-course-title">{course.title}</h2>
+          <StatusBadge tone={isComplete ? "success" : "neutral"}>
+            {isComplete ? "Completed" : "In progress"}
+          </StatusBadge>
+        </div>
         <p className="featured-course-desc">{course.description}</p>
         <ProgressBar percent={progress.pct_complete} label={`${course.title} progress`} />
       </div>

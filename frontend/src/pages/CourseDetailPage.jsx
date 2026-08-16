@@ -68,9 +68,8 @@ export default function CourseDetailPage() {
       <p>
         <Link to="/courses">&larr; Back to courses</Link>
       </p>
-      <p className="eyebrow">Course</p>
       <h1>{course.title}</h1>
-      <p>{course.description}</p>
+      <p className="prose">{course.description}</p>
       <ProgressBar percent={progress.pct_complete} label="Course progress" />
 
       {certificate && (
@@ -91,7 +90,7 @@ export default function CourseDetailPage() {
         return (
           <article className="card module-card" key={module.id}>
             <h3>{module.title}</h3>
-            <p>{module.content}</p>
+            <p className="prose">{module.content}</p>
             {done ? (
               <StatusBadge tone="success">Completed</StatusBadge>
             ) : (

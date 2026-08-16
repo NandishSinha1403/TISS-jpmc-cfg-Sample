@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-08-16T14:04:55.696Z",
+        "reason": "user confirmed: Inter kept for body/UI, EB Garamond added as the distinctive display/heading voice — deliberate pairing, not an unexamined default"
+      }
+    ]
+  }
+}
