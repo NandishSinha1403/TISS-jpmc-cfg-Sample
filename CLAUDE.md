@@ -79,6 +79,14 @@ frontend/src/
 - `GET /courses/{id}/progress` returns `pct_complete` (modules completed/total), `completed_module_ids` (so the frontend can render per-module state), and per-quiz progress using the learner's **best** attempt, not the latest — a worse retake must never downgrade a prior pass. `QuizAttempt` rows already exist from the assessments feature; this reads them, doesn't duplicate them.
 - Frontend: `CourseDetailPage` now fetches course + quizzes + progress together, shows a "Mark as complete" button per module (disabled once done) and best-score/pass-fail next to each quiz link.
 
+## Certificates
+
+- Auto-issued (not manually claimed): after every quiz submission (static and adaptive paths, in `routers/assessments.py`), `certificate_service.check_and_issue_certificate` checks whether the course now has a passing best-attempt on every one of its quizzes; if so and no certificate exists yet for that user+course, one is created. Idempotent — safe to call on every submission. A course with zero quizzes can never auto-complete.
+- `Certificate` stores only `id` (the public UUID), `user_id`, `course_id`, `issued_at` — no learner name/course title duplicated, so `/verify` always reflects the live DB, not a snapshot. This is what makes the PDF non-forgeable: the PDF's data is cosmetic, only the UUID carries authority.
+- PDF generation is isolated in `certificate_pdf.py` (reportlab + qrcode, pure function: values in, bytes out) — kept separate from `certificate_service.py`'s DB/business logic, same isolation principle as `app/ml/`. The QR code points at `FRONTEND_BASE_URL/verify/{uuid}` (a human-facing page), not the API.
+- `GET /verify/{uuid}` is public/unauthenticated by design and returns 404 (not a 500) on any invalid or unknown UUID. `GET /certificates/{id}/pdf` is auth-required and checks ownership (or admin) before serving — verified a second learner gets 404, not another learner's PDF.
+- Frontend: public `/verify/:certificateId` route (outside `RequireAuth`), and a "Download certificate" button on `CourseDetailPage` once earned — the PDF fetch attaches the JWT manually (can't use a plain `<a href>` for an authenticated binary download) and triggers a blob-URL save.
+
 ## Conventions
 
 - Routes never contain business logic — call a `services/` function.

@@ -17,7 +17,7 @@ from app.schemas.assessment import (
     QuizResultResponse,
     QuizSubmission,
 )
-from app.services import assessment_service
+from app.services import assessment_service, certificate_service
 
 router = APIRouter(tags=["assessments"])
 
@@ -92,6 +92,8 @@ def submit_quiz(
     quiz = assessment_service.get_quiz(db, quiz_id)
     correct_count = round(attempt.score_pct / 100 * len(quiz.questions))
 
+    certificate_service.check_and_issue_certificate(db, quiz.course_id, current_user)
+
     return QuizResultResponse(
         quiz_id=quiz_id,
         score_pct=attempt.score_pct,
@@ -149,6 +151,8 @@ def answer_adaptive_quiz(
 
     if final is not None:
         correct_count, total_questions, score_pct, passed = final
+        quiz = assessment_service.get_quiz(db, quiz_id)
+        certificate_service.check_and_issue_certificate(db, quiz.course_id, current_user)
         return AdaptiveSessionResult(
             session_id=session.id,
             result=QuizResultResponse(

@@ -3,23 +3,41 @@ import { Link, useParams } from "react-router-dom";
 import { getCourse } from "../api/courses";
 import { listQuizzes } from "../api/assessments";
 import { completeModule, getCourseProgress } from "../api/progress";
+import { downloadCertificatePdf, getCourseCertificate } from "../api/certificates";
 
 export default function CourseDetailPage() {
   const { courseId } = useParams();
   const [course, setCourse] = useState(null);
   const [quizzes, setQuizzes] = useState([]);
   const [progress, setProgress] = useState(null);
+  const [certificate, setCertificate] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState(false);
 
   function loadAll() {
-    return Promise.all([getCourse(courseId), listQuizzes(courseId), getCourseProgress(courseId)]).then(
-      ([courseData, quizzesData, progressData]) => {
-        setCourse(courseData);
-        setQuizzes(quizzesData);
-        setProgress(progressData);
-      }
-    );
+    return Promise.all([
+      getCourse(courseId),
+      listQuizzes(courseId),
+      getCourseProgress(courseId),
+      getCourseCertificate(courseId),
+    ]).then(([courseData, quizzesData, progressData, certificateData]) => {
+      setCourse(courseData);
+      setQuizzes(quizzesData);
+      setProgress(progressData);
+      setCertificate(certificateData);
+    });
+  }
+
+  async function handleDownloadCertificate() {
+    setDownloading(true);
+    try {
+      await downloadCertificatePdf(certificate.id);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setDownloading(false);
+    }
   }
 
   useEffect(() => {
@@ -54,6 +72,14 @@ export default function CourseDetailPage() {
         Progress: {progress.modules_completed}/{progress.modules_total} modules (
         {progress.pct_complete.toFixed(0)}%)
       </p>
+      {certificate && (
+        <p>
+          Certificate earned.{" "}
+          <button type="button" onClick={handleDownloadCertificate} disabled={downloading}>
+            {downloading ? "Downloading..." : "Download certificate"}
+          </button>
+        </p>
+      )}
       <h2>Modules</h2>
       {course.modules.length === 0 && <p>No modules yet.</p>}
       {course.modules.map((module) => (

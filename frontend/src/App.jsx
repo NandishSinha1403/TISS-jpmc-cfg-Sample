@@ -7,6 +7,7 @@ import CoursesPage from './pages/CoursesPage'
 import CourseDetailPage from './pages/CourseDetailPage'
 import QuizPage from './pages/QuizPage'
 import AdminCoursesPage from './pages/AdminCoursesPage'
+import VerifyPage from './pages/VerifyPage'
 import RequireAuth from './components/RequireAuth'
 import './App.css'
 
@@ -30,6 +31,7 @@ function App() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
+      <Route path="/verify/:certificateId" element={<VerifyPage />} />
       <Route
         path="/"
         element={
