@@ -50,6 +50,7 @@ def create_quiz(db: Session, course_id: str, data: QuizCreate) -> Quiz:
         pass_threshold_pct=data.pass_threshold_pct,
         adaptive=data.adaptive,
         questions_per_attempt=data.questions_per_attempt,
+        skill_category=data.skill_category,
     )
     db.add(quiz)
     db.commit()

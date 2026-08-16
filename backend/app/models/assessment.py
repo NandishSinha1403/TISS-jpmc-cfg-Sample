@@ -13,6 +13,14 @@ class Difficulty(str, enum.Enum):
     hard = "hard"
 
 
+class SkillCategory(str, enum.Enum):
+    digital_literacy = "digital_literacy"
+    communication = "communication"
+    financial_literacy = "financial_literacy"
+    workplace_professionalism = "workplace_professionalism"
+    problem_solving = "problem_solving"
+
+
 class Quiz(Base):
     __tablename__ = "quizzes"
 
@@ -22,6 +30,7 @@ class Quiz(Base):
     pass_threshold_pct = Column(Float, nullable=False, default=70.0)
     adaptive = Column(Boolean, nullable=False, default=False)
     questions_per_attempt = Column(Integer, nullable=False, default=5)
+    skill_category = Column(Enum(SkillCategory), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     questions = relationship(

@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, field_validator
 
-from app.models.assessment import Difficulty
+from app.models.assessment import Difficulty, SkillCategory
 
 
 class QuestionCreate(BaseModel):
@@ -64,6 +64,7 @@ class QuizCreate(BaseModel):
     pass_threshold_pct: float = 70.0
     adaptive: bool = False
     questions_per_attempt: int = 5
+    skill_category: SkillCategory | None = None
 
     @field_validator("title")
     @classmethod
@@ -80,6 +81,7 @@ class QuizListResponse(BaseModel):
     pass_threshold_pct: float
     adaptive: bool
     questions_per_attempt: int
+    skill_category: SkillCategory | None
     created_at: datetime
 
     model_config = {"from_attributes": True}

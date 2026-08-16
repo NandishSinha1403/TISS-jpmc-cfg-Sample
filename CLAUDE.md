@@ -88,6 +88,16 @@ frontend/src/
 - Frontend: public `/verify/:certificateId` route (outside `RequireAuth`), and a "Download certificate" button on `CourseDetailPage` once earned — the PDF fetch attaches the JWT manually (can't use a plain `<a href>` for an authenticated binary download) and triggers a blob-URL save.
 - Certificate PDF embeds the real TISS logo (`assets/Tata_Institute_of_Social_Sciences_Logo.svg`) via `svglib` (`svg2rlg` → `reportlab.graphics.renderPDF`), not a placeholder — see `_draw_logo` in `certificate_pdf.py`.
 
+## Skill-gap → job-readiness matcher (backend only, no UI yet)
+
+- Explainable weighted-average scoring, not a trained model — deliberate per DECISIONS.md; only worth a real model if this demonstrably falls short.
+- `Quiz.skill_category` (nullable, set at quiz-create time via `QuizCreate.skill_category`) tags a quiz with one of 5 `SkillCategory` values (`digital_literacy`, `communication`, `financial_literacy`, `workplace_professionalism`, `problem_solving`). Untagged quizzes don't count toward any category.
+- `app/ml/skill_gap.py` holds the pure logic (same isolation principle as `adaptive_difficulty.py`): `JOB_PROFILES` (5 sample profiles, hand-set weights summing to 1.0 per profile — see the profile table proposed and confirmed with the user), `compute_category_scores` (average of best-attempt % per category), `compute_job_readiness` (weighted sum per job + a "focus next on X" recommendation = the required category with the largest weighted gap, `weight × (100 - score)`).
+- `services/skill_service.py` gathers each tagged quiz's best attempt for the learner (same "best not latest" convention as `progress_service.py`) and calls the `ml/` functions — routers never touch scoring math directly.
+- Endpoints: `GET /skills/categories`, `GET /skills/jobs` (reference data), `GET /users/me/skill-gap` (a learner's own category scores + job readiness list, sorted by readiness descending). All auth-required, no role restriction, consistent with the rest of the app's read conventions.
+- Verified via curl end-to-end: category averaging, weighted readiness math, and focus-next selection all hand-checked against the formulas.
+- No frontend yet — per explicit sequencing, this is backend/logic first; UI (results card, practice-question panel, percentile display) comes in a later design round alongside steps 9-10.
+
 ## Design system: Midnight/Daylight Editorial (complete — all 8 screens)
 
 - Designed via the **Superdesign** CLI (not any other tool) for the initial direction; refined through a full **Impeccable** pass (critique → adapt → typeset → layout → animate → delight → harden → audit → polish). Style direction, palette, and component patterns live in `.superdesign/design-system.md`; draft history/resume state in `.superdesign/resume.json`. See `DESIGN.md` for the current summary.
