@@ -14,7 +14,7 @@ Status as of this session. "Done" = fully working AND committed to git.
 | 6 | Progress tracking | ✅ Done |
 | 7 | Credentialed certification (UUID + PDF + QR + verify) | ✅ Done |
 | 8 | Skill-gap → job-readiness matcher | ✅ Backend done, no UI yet |
-| 9 | Auto-generated practice questions (LLM) | ⬜ On hold — awaiting LLM provider decision |
+| 9 | Auto-generated practice questions (LLM) | ✅ Backend done, no UI yet |
 | 10 | Peer-benchmarking | ✅ Backend done, no UI yet |
 
 ## Done: full Impeccable design pass (Midnight/Daylight Editorial)
@@ -46,18 +46,18 @@ Inserted between steps 7 and 8 at your request — not one of the original 10 nu
 - `GET /quizzes/{id}/benchmark` and `GET /courses/{id}/benchmark`
 - Verified end-to-end via curl with a real multi-learner cohort, percentile math hand-checked
 
-**Step 9 — auto-generated practice questions (LLM): on hold**, awaiting your LLM provider decision (Anthropic vs OpenAI vs other) and an API key.
+**Step 9 — auto-generated practice questions** (commit `91ccd1e`):
+- Provider: OpenRouter (OpenAI-compatible endpoint, standard `openai` SDK), model `openai/gpt-oss-20b:free` — confirmed with you after verifying live that no DeepSeek model is currently free on OpenRouter
+- `POST /modules/{id}/practice-questions` — generates fresh on demand, not persisted
+- Graceful failure verified end-to-end (503, not a crash) with no API key configured; parsing logic unit-tested (clean/fenced/malformed JSON, count truncation)
+- **Not yet verified**: an actual successful generation call — needs a real `OPENROUTER_API_KEY` in `.env`, which you're providing
 
-## Next: UI for steps 8 & 10, or step 9 backend, or both
+## All of steps 8-10 are backend-complete. Next: one design round for their UI
 
-Per the agreed plan: a design round for the new UI these features need (skill-gap results card, percentile display — practice-question panel waits on step 9) plus one more full-app polish pass. Your call on ordering:
-
-1. **Design + build UI for steps 8 & 10 now**, leave step 9 for later once you've decided on an LLM provider
-2. **Decide the LLM provider first**, do all three backends' UI in one design round
-3. Something else — your call
+Per the agreed plan: a design round for the new UI these three features need (skill-gap results card, percentile display, practice-question panel) plus one more full-app polish pass.
 
 ## Open questions for you to decide
 
-1. **LLM provider for step 9** — Anthropic, OpenAI, or hold off entirely for now.
-2. **UI ordering** — see above.
-3. **Live visual sign-off** — worth doing a manual browser pass before demo day, given the extension was unavailable for the entire design phase plus steps 8/10.
+1. **Add your `OPENROUTER_API_KEY` to `backend/.env`** so step 9 can be tested end-to-end for real — currently blank.
+2. **Live visual sign-off** — worth doing a manual browser pass before demo day, given the extension was unavailable for the entire design phase plus steps 8-10.
+3. **When to start the UI design round** for the 3 new features — now, or after something else?
