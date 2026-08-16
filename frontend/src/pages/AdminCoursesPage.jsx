@@ -97,6 +97,8 @@ function QuizManager({ courseId }) {
   const [passThreshold, setPassThreshold] = useState(70);
   const [expandedQuizId, setExpandedQuizId] = useState(null);
   const [expandedQuiz, setExpandedQuiz] = useState(null);
+  const [adaptive, setAdaptive] = useState(false);
+  const [questionsPerAttempt, setQuestionsPerAttempt] = useState(5);
   const [error, setError] = useState("");
 
   function refresh() {
@@ -113,7 +115,12 @@ function QuizManager({ courseId }) {
     e.preventDefault();
     setError("");
     try {
-      await createQuiz(courseId, { title, passThresholdPct: Number(passThreshold) });
+      await createQuiz(courseId, {
+        title,
+        passThresholdPct: Number(passThreshold),
+        adaptive,
+        questionsPerAttempt: Number(questionsPerAttempt),
+      });
       setTitle("");
       refresh();
     } catch (err) {
@@ -140,7 +147,7 @@ function QuizManager({ courseId }) {
       <ul>
         {quizzes.map((quiz) => (
           <li key={quiz.id}>
-            {quiz.title} (pass: {quiz.pass_threshold_pct}%)
+            {quiz.title} (pass: {quiz.pass_threshold_pct}%{quiz.adaptive ? `, adaptive, ${quiz.questions_per_attempt}/attempt` : ""})
             <button type="button" onClick={() => toggleQuiz(quiz.id)}>
               {expandedQuizId === quiz.id ? "Hide" : "Manage questions"}
             </button>
@@ -170,6 +177,19 @@ function QuizManager({ courseId }) {
           value={passThreshold}
           onChange={(e) => setPassThreshold(e.target.value)}
         />
+        <label>
+          <input type="checkbox" checked={adaptive} onChange={(e) => setAdaptive(e.target.checked)} />
+          Adaptive difficulty
+        </label>
+        {adaptive && (
+          <input
+            type="number"
+            placeholder="Questions per attempt"
+            value={questionsPerAttempt}
+            onChange={(e) => setQuestionsPerAttempt(e.target.value)}
+            min={1}
+          />
+        )}
         <button type="submit">Create quiz</button>
       </form>
       {error && <p role="alert">{error}</p>}

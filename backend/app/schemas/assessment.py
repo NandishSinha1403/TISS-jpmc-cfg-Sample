@@ -62,6 +62,8 @@ class QuestionLearnerResponse(BaseModel):
 class QuizCreate(BaseModel):
     title: str
     pass_threshold_pct: float = 70.0
+    adaptive: bool = False
+    questions_per_attempt: int = 5
 
     @field_validator("title")
     @classmethod
@@ -76,6 +78,8 @@ class QuizListResponse(BaseModel):
     course_id: str
     title: str
     pass_threshold_pct: float
+    adaptive: bool
+    questions_per_attempt: int
     created_at: datetime
 
     model_config = {"from_attributes": True}
@@ -99,3 +103,26 @@ class QuizResultResponse(BaseModel):
     passed: bool
     correct_count: int
     total_questions: int
+
+
+class AdaptiveAnswerSubmission(BaseModel):
+    question_id: str
+    selected_index: int
+
+
+class AdaptiveSessionState(BaseModel):
+    """Returned while an adaptive session is still in progress."""
+
+    session_id: str
+    completed: bool = False
+    question: QuestionLearnerResponse
+    question_number: int
+    total_questions: int
+
+
+class AdaptiveSessionResult(BaseModel):
+    """Returned when the adaptive session finishes."""
+
+    session_id: str
+    completed: bool = True
+    result: QuizResultResponse

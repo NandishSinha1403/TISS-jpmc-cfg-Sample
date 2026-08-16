@@ -65,6 +65,14 @@ frontend/src/
 - Security-relevant: `GET /quizzes/{id}` returns different schemas by role — `QuizLearnerDetailResponse` never includes `correct_index`; only `QuizAdminDetailResponse` does. Do not merge these schemas.
 - Frontend: `/quizzes/:quizId` (learner take-quiz + result), admin quiz/question builder is inline inside `AdminCoursesPage`'s course row.
 
+## Adaptive quiz difficulty
+
+- Rule-based, not IRT/ML: `app/ml/adaptive_difficulty.py` steps a 3-rung ladder (easy/medium/hard) — correct steps up, wrong steps down — and picks an unused question at (or closest to) the target rung. Deliberately simple per the "maintainable, not academically perfect" requirement.
+- A `Quiz` with `adaptive=True` is taken via `QuizSession`, not the all-at-once `/submit` flow: `POST /quizzes/{id}/start` returns one question, `POST /quizzes/{id}/sessions/{session_id}/answer` scores it, advances difficulty, and returns either the next question or (once `questions_per_attempt` is reached) the final `QuizResultResponse`.
+- For adaptive quizzes, `GET /quizzes/{id}` returns `questions: []` to learners — the full pool isn't exposed up front, only revealed one at a time via the session flow. Admins still see the full pool (needed for question management).
+- Scoring at session finalize must use only the *asked* questions (`session.asked_question_ids`), not the full quiz question pool — caught and fixed a bug here during testing where the denominator was wrong.
+- Frontend: `QuizPage` branches on `quiz.adaptive` between `StaticQuiz` (existing all-at-once form) and `AdaptiveQuiz` (one question at a time, calls `/start` then `/answer` per question).
+
 ## Conventions
 
 - Routes never contain business logic — call a `services/` function.
