@@ -37,8 +37,19 @@ backend/app/
   schemas/        Pydantic request/response models
   ml/             ML/LLM logic, never imported directly by routers (go through services)
 frontend/src/
-  api/client.js   fetch wrapper using VITE_API_BASE_URL
+  api/client.js       fetch wrapper using VITE_API_BASE_URL, attaches JWT, normalizes errors
+  api/auth.js          signup/login/me calls
+  context/AuthContext  holds current user + token, exposes login()/logout()
+  components/RequireAuth.jsx  route guard, optional `roles` prop for admin-only routes
+  pages/                route-level components (LoginPage, SignupPage, ...)
 ```
+
+## Auth
+
+- Signup is learner-only (public self-signup cannot create admin accounts — flagged security boundary, seed admins directly in DB for the hackathon).
+- JWT payload: `sub` (user id), `role`, `exp`. Sent as `Authorization: Bearer <token>`.
+- Backend: `core/security.py` (hashing via `bcrypt` directly — passlib's bcrypt backend is broken on bcrypt>=4.1, do not reintroduce it), `core/deps.py` (`get_current_user`, `require_role(*roles)` for role-gated routes).
+- Frontend: token persisted in `localStorage`, restored on load via `/auth/me`.
 
 ## Conventions
 
