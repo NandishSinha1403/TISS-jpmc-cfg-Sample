@@ -52,6 +52,12 @@ frontend/src/
 - Frontend: token persisted in `localStorage`, restored on load via `/auth/me`.
 - Seed the local admin with `cd backend && python -m scripts.seed_admin` (login: `nandish@tiss.edu` / `admin101`). Login requires a valid email format, so `nandish` alone can't be used as the login value.
 
+## Courses & modules
+
+- `Course` has many `Module`s (cascade delete). All reads (`GET /courses`, `GET /courses/{id}`) require auth but allow any role; all writes require `admin` via `require_role`.
+- Modules are always addressed under their course (`/courses/{course_id}/modules/{module_id}`) — no standalone module endpoints.
+- Frontend: `/courses` (learner browse), `/courses/:courseId` (module reader), `/admin/courses` (admin CRUD, role-gated by `RequireAuth roles={['admin']}`).
+
 ## Conventions
 
 - Routes never contain business logic — call a `services/` function.
