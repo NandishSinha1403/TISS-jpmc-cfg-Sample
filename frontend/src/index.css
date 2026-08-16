@@ -127,6 +127,11 @@ h1 {
 
 h2 {
   font-size: clamp(23px, 3.2vw, 30px);
+  margin-top: var(--space-16);
+}
+
+.content > h2:first-of-type {
+  margin-top: 0;
 }
 
 h3 {
