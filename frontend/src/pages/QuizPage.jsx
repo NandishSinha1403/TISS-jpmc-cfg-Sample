@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { answerAdaptiveQuiz, getQuiz, startAdaptiveQuiz, submitQuiz } from "../api/assessments";
+import { downloadCertificatePdf, getCourseCertificate } from "../api/certificates";
 import StatusBadge from "../components/StatusBadge";
 
 function QuestionCard({ number, question, selected, onSelect }) {
@@ -23,9 +24,8 @@ function QuestionCard({ number, question, selected, onSelect }) {
   );
 }
 
-function StaticQuiz({ quiz }) {
+function StaticQuiz({ quiz, onComplete }) {
   const [answers, setAnswers] = useState({});
-  const [result, setResult] = useState(null);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -38,15 +38,13 @@ function StaticQuiz({ quiz }) {
     setError("");
     setSubmitting(true);
     try {
-      setResult(await submitQuiz(quiz.id, answers));
+      onComplete(await submitQuiz(quiz.id, answers));
     } catch (err) {
       setError(err.message);
     } finally {
       setSubmitting(false);
     }
   }
-
-  if (result) return <QuizResult quiz={quiz} result={result} />;
 
   return (
     <>
@@ -72,9 +70,8 @@ function StaticQuiz({ quiz }) {
 
 const DIFFICULTY_RANK = { easy: 0, medium: 1, hard: 2 };
 
-function AdaptiveQuiz({ quiz }) {
+function AdaptiveQuiz({ quiz, onComplete }) {
   const [session, setSession] = useState(null);
-  const [result, setResult] = useState(null);
   const [selected, setSelected] = useState(null);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -102,7 +99,7 @@ function AdaptiveQuiz({ quiz }) {
       });
       setSelected(null);
       if (response.completed) {
-        setResult(response.result);
+        onComplete(response.result);
       } else {
         const prevRank = DIFFICULTY_RANK[prevDifficulty.current];
         const nextRank = DIFFICULTY_RANK[response.question.difficulty];
@@ -117,7 +114,6 @@ function AdaptiveQuiz({ quiz }) {
     }
   }
 
-  if (result) return <QuizResult quiz={quiz} result={result} />;
   if (error) return <p role="alert">{error}</p>;
   if (!session) return <p>Loading first question...</p>;
 
@@ -148,7 +144,44 @@ function AdaptiveQuiz({ quiz }) {
   );
 }
 
-function QuizResult({ quiz, result }) {
+function QuizResult({ quiz, result, newCertificate }) {
+  const [downloading, setDownloading] = useState(false);
+
+  async function handleDownload() {
+    setDownloading(true);
+    try {
+      await downloadCertificatePdf(newCertificate.id);
+    } finally {
+      setDownloading(false);
+    }
+  }
+
+  if (newCertificate) {
+    return (
+      <div className="result-panel result-panel--certified">
+        <span className="certified-seal">
+          <svg width="56" height="56" viewBox="0 0 56 56" fill="none" aria-hidden="true">
+            <circle cx="28" cy="28" r="25" stroke="currentColor" strokeWidth="2" />
+            <path d="M17 28.5L24 35.5L39 19.5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </span>
+        <p className="eyebrow">Course complete</p>
+        <h1 className="certified-title">You&rsquo;re certified.</h1>
+        <p className="certified-subtitle">
+          You passed every assessment in this course — your certificate is ready.
+        </p>
+        <div className="certified-actions">
+          <button type="button" className="btn btn-primary" onClick={handleDownload} disabled={downloading}>
+            {downloading ? "Downloading..." : "Download certificate"}
+          </button>
+          <Link to={`/courses/${quiz.course_id}`} className="btn btn-secondary">
+            Back to course
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="result-panel">
       <p className="result-score">{result.score_pct.toFixed(0)}%</p>
@@ -170,20 +203,48 @@ export default function QuizPage() {
   const [quiz, setQuiz] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [result, setResult] = useState(null);
+  const [newCertificate, setNewCertificate] = useState(null);
+  const hadCertificateBefore = useRef(false);
 
   useEffect(() => {
     getQuiz(quizId)
-      .then(setQuiz)
+      .then(async (q) => {
+        setQuiz(q);
+        try {
+          hadCertificateBefore.current = Boolean(await getCourseCertificate(q.course_id));
+        } catch {
+          hadCertificateBefore.current = false;
+        }
+      })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [quizId]);
+
+  async function handleComplete(quizResult) {
+    setResult(quizResult);
+    if (quizResult.passed && !hadCertificateBefore.current) {
+      try {
+        const cert = await getCourseCertificate(quiz.course_id);
+        if (cert) setNewCertificate(cert);
+      } catch {
+        // no certificate issued (course has other unfinished quizzes) — routine result stands
+      }
+    }
+  }
 
   if (loading) return <div className="content content--narrow"><p>Loading...</p></div>;
   if (error) return <div className="content content--narrow"><p role="alert">{error}</p></div>;
 
   return (
     <div className="content content--narrow">
-      {quiz.adaptive ? <AdaptiveQuiz quiz={quiz} /> : <StaticQuiz quiz={quiz} />}
+      {result ? (
+        <QuizResult quiz={quiz} result={result} newCertificate={newCertificate} />
+      ) : quiz.adaptive ? (
+        <AdaptiveQuiz quiz={quiz} onComplete={handleComplete} />
+      ) : (
+        <StaticQuiz quiz={quiz} onComplete={handleComplete} />
+      )}
     </div>
   );
 }

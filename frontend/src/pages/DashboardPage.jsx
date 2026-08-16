@@ -46,6 +46,7 @@ function StatCluster({ courseCount, avgProgress, certCount }) {
 function FeaturedCourse({ entry }) {
   const { course, progress, certificate } = entry;
   const isComplete = Boolean(certificate);
+  const isAlmostThere = !isComplete && progress.pct_complete >= 90;
 
   return (
     <Link to={`/courses/${course.id}`} className="featured-course">
@@ -58,6 +59,7 @@ function FeaturedCourse({ entry }) {
         </div>
         <p className="featured-course-desc">{course.description}</p>
         <ProgressBar percent={progress.pct_complete} label={`${course.title} progress`} />
+        {isAlmostThere && <p className="almost-there">Almost there — you&rsquo;re {(100 - progress.pct_complete).toFixed(0)}% from your certificate.</p>}
       </div>
       <span className="featured-course-cta">
         {isComplete ? "Review course" : "Resume"}
