@@ -1,6 +1,27 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { answerAdaptiveQuiz, getQuiz, startAdaptiveQuiz, submitQuiz } from "../api/assessments";
+import StatusBadge from "../components/StatusBadge";
+
+function QuestionCard({ number, question, selected, onSelect }) {
+  return (
+    <fieldset className="card question-card">
+      <legend className="eyebrow">Question {number}</legend>
+      <p className="question-text">{question.text}</p>
+      {question.options.map((option, idx) => (
+        <label key={idx} className={`option-row ${selected === idx ? "option-row--selected" : ""}`}>
+          <input
+            type="radio"
+            name={question.id}
+            checked={selected === idx}
+            onChange={() => onSelect(idx)}
+          />
+          {option}
+        </label>
+      ))}
+    </fieldset>
+  );
+}
 
 function StaticQuiz({ quiz }) {
   const [answers, setAnswers] = useState({});
@@ -32,24 +53,15 @@ function StaticQuiz({ quiz }) {
       <h1>{quiz.title}</h1>
       <form onSubmit={handleSubmit}>
         {quiz.questions.map((q, i) => (
-          <fieldset key={q.id}>
-            <legend>
-              {i + 1}. {q.text}
-            </legend>
-            {q.options.map((option, idx) => (
-              <label key={idx}>
-                <input
-                  type="radio"
-                  name={q.id}
-                  checked={answers[q.id] === idx}
-                  onChange={() => selectAnswer(q.id, idx)}
-                />
-                {option}
-              </label>
-            ))}
-          </fieldset>
+          <QuestionCard
+            key={q.id}
+            number={i + 1}
+            question={q}
+            selected={answers[q.id]}
+            onSelect={(idx) => selectAnswer(q.id, idx)}
+          />
         ))}
-        <button type="submit" disabled={submitting}>
+        <button type="submit" className="btn btn-primary" disabled={submitting}>
           {submitting ? "Submitting..." : "Submit quiz"}
         </button>
       </form>
@@ -59,7 +71,7 @@ function StaticQuiz({ quiz }) {
 }
 
 function AdaptiveQuiz({ quiz }) {
-  const [session, setSession] = useState(null); // { session_id, question, question_number, total_questions }
+  const [session, setSession] = useState(null);
   const [result, setResult] = useState(null);
   const [selected, setSelected] = useState(null);
   const [error, setError] = useState("");
@@ -101,26 +113,20 @@ function AdaptiveQuiz({ quiz }) {
   return (
     <>
       <h1>{quiz.title}</h1>
-      <p>
-        Question {session.question_number} of {session.total_questions} — difficulty:{" "}
-        {session.question.difficulty}
-      </p>
+      <div className="adaptive-readout">
+        <span className="eyebrow">
+          Question {session.question_number} of {session.total_questions}
+        </span>
+        <StatusBadge tone="neutral">{session.question.difficulty}</StatusBadge>
+      </div>
       <form onSubmit={handleSubmit}>
-        <fieldset>
-          <legend>{session.question.text}</legend>
-          {session.question.options.map((option, idx) => (
-            <label key={idx}>
-              <input
-                type="radio"
-                name={session.question.id}
-                checked={selected === idx}
-                onChange={() => setSelected(idx)}
-              />
-              {option}
-            </label>
-          ))}
-        </fieldset>
-        <button type="submit" disabled={submitting || selected === null}>
+        <QuestionCard
+          number={session.question_number}
+          question={session.question}
+          selected={selected}
+          onSelect={setSelected}
+        />
+        <button type="submit" className="btn btn-primary" disabled={submitting || selected === null}>
           {submitting ? "Submitting..." : "Next"}
         </button>
       </form>
@@ -130,14 +136,18 @@ function AdaptiveQuiz({ quiz }) {
 
 function QuizResult({ quiz, result }) {
   return (
-    <>
-      <h1>{quiz.title} — Result</h1>
+    <div className="result-panel">
+      <p className="result-score">{result.score_pct.toFixed(0)}%</p>
+      <StatusBadge tone={result.passed ? "success" : "warning"}>
+        {result.passed ? "Passed" : "Not passed"}
+      </StatusBadge>
       <p>
-        Score: {result.score_pct.toFixed(1)}% ({result.correct_count}/{result.total_questions} correct)
+        {result.correct_count}/{result.total_questions} correct
       </p>
-      <p>{result.passed ? "Passed" : "Not passed"}</p>
-      <Link to={`/courses/${quiz.course_id}`}>Back to course</Link>
-    </>
+      <Link to={`/courses/${quiz.course_id}`} className="btn btn-secondary">
+        Back to course
+      </Link>
+    </div>
   );
 }
 
@@ -154,12 +164,12 @@ export default function QuizPage() {
       .finally(() => setLoading(false));
   }, [quizId]);
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p role="alert">{error}</p>;
+  if (loading) return <div className="content content--narrow"><p>Loading...</p></div>;
+  if (error) return <div className="content content--narrow"><p role="alert">{error}</p></div>;
 
   return (
-    <section id="center">
+    <div className="content content--narrow">
       {quiz.adaptive ? <AdaptiveQuiz quiz={quiz} /> : <StaticQuiz quiz={quiz} />}
-    </section>
+    </div>
   );
 }

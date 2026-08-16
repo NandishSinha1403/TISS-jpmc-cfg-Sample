@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { verifyCertificate } from "../api/certificates";
+import StatusBadge from "../components/StatusBadge";
 
 export default function VerifyPage() {
   const { certificateId } = useParams();
@@ -15,25 +16,36 @@ export default function VerifyPage() {
       .finally(() => setLoading(false));
   }, [certificateId]);
 
-  if (loading) return <p>Verifying...</p>;
-  if (error) return <p role="alert">{error}</p>;
+  if (loading) return <div className="content content--narrow"><p>Verifying...</p></div>;
+  if (error) return <div className="content content--narrow"><p role="alert">{error}</p></div>;
 
   if (!result.valid) {
     return (
-      <section id="center">
-        <h1>Certificate not found</h1>
+      <div className="content content--narrow verify-panel">
+        <StatusBadge tone="warning">Certificate not found</StatusBadge>
         <p>This certificate ID does not match any issued certificate.</p>
-      </section>
+      </div>
     );
   }
 
   return (
-    <section id="center">
-      <h1>Certificate verified</h1>
-      <p><strong>Learner:</strong> {result.learner_name}</p>
-      <p><strong>Course:</strong> {result.course_title}</p>
-      <p><strong>Issued:</strong> {new Date(result.issued_at).toLocaleDateString()}</p>
-      <p><strong>Certificate ID:</strong> {result.certificate_id}</p>
-    </section>
+    <div className="content content--narrow verify-panel">
+      <StatusBadge tone="success">Certificate verified</StatusBadge>
+      <h1>{result.learner_name}</h1>
+      <div className="card verify-record">
+        <div className="verify-record-row">
+          <span className="eyebrow">Course</span>
+          <span>{result.course_title}</span>
+        </div>
+        <div className="verify-record-row">
+          <span className="eyebrow">Issued</span>
+          <span>{new Date(result.issued_at).toLocaleDateString()}</span>
+        </div>
+        <div className="verify-record-row">
+          <span className="eyebrow">Certificate ID</span>
+          <span className="mono-id">{result.certificate_id}</span>
+        </div>
+      </div>
+    </div>
   );
 }

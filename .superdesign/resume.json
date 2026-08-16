@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "targets": {
+    "/": {
+      "targetKind": "existing-ui",
+      "projectId": "d7ef7897-81fb-46b3-9e11-b4dcaa47fb33",
+      "baselineDraftId": "4100681b-a4cd-4d97-b1b1-2e29af0249d6",
+      "activeDraftId": "d93dd061-098f-4c98-beda-41e62175a551",
+      "designSystemPath": ".superdesign/design-system.md",
+      "contextFiles": [
+        ".superdesign/design-system.md",
+        "frontend/src/App.jsx",
+        "frontend/src/index.css",
+        "frontend/src/context/AuthContext.jsx"
+      ],
+      "fingerprints": {
+        ".superdesign/design-system.md": "802478439825f11930559812e62740ca5d1fa210f7088aa90d790d9d0b09f9d0",
+        "frontend/src/App.jsx": "782a5d6802f9e25d3f30f68a7f119af8aad0f2f786a3e6429f8ed5c873948258",
+        "frontend/src/index.css": "fda85fffe7f006d822fb9ab4e774b9e2b8fadffa73a3806b038dc0b8456cbbeb",
+        "frontend/src/context/AuthContext.jsx": "1e76364325222764e49a9b45802055f20012358e9cc09e252a6461113de95d68"
+      },
+      "drafts": {
+        "4100681b-a4cd-4d97-b1b1-2e29af0249d6": { "title": "Current Dashboard (HomePage)", "visualDirection": "pixel-perfect reproduction (baseline)" },
+        "b4d5633b-dddd-4036-8258-6a975264fd7e": { "title": "Learner Dashboard - grid + course cards", "visualDirection": "SUPERSEDED — Editorial Tech, course card grid + hero greeting" },
+        "c8752fdd-3834-4628-9466-fa96a94c3b1e": { "title": "Learner Dashboard - data-dense ledger", "visualDirection": "SUPERSEDED — Editorial Tech, stats strip + row-ledger layout" },
+        "d93dd061-098f-4c98-beda-41e62175a551": { "title": "Learning Dashboard — Midnight Editorial", "visualDirection": "Midnight Editorial, DARK mode, glass nav + hero greeting + course card grid", "parentDraftId": "4100681b-a4cd-4d97-b1b1-2e29af0249d6" },
+        "0a34ab37-c6d9-470f-80db-01aa75bc619f": { "title": "Learner Dashboard — Daylight Editorial", "visualDirection": "Midnight Editorial, LIGHT mode, same structure as dark", "parentDraftId": "4100681b-a4cd-4d97-b1b1-2e29af0249d6" }
+      }
+    },
+    "/courses/:courseId": {
+      "targetKind": "existing-ui",
+      "projectId": "d7ef7897-81fb-46b3-9e11-b4dcaa47fb33",
+      "baselineDraftId": "545c3b80-4e6e-481e-8bd5-9c98a7295166",
+      "activeDraftId": "86354a64-ba00-4363-930e-df79de0cb458",
+      "designSystemPath": ".superdesign/design-system.md",
+      "contextFiles": [
+        ".superdesign/design-system.md",
+        "frontend/src/pages/CourseDetailPage.jsx",
+        "frontend/src/index.css"
+      ],
+      "fingerprints": {
+        ".superdesign/design-system.md": "802478439825f11930559812e62740ca5d1fa210f7088aa90d790d9d0b09f9d0",
+        "frontend/src/pages/CourseDetailPage.jsx": "5b0468e64d6d068f53eadeaaa0b50786c9f6d1c1213b0cfbf9ed85bc3df03b47",
+        "frontend/src/index.css": "fda85fffe7f006d822fb9ab4e774b9e2b8fadffa73a3806b038dc0b8456cbbeb"
+      },
+      "drafts": {
+        "545c3b80-4e6e-481e-8bd5-9c98a7295166": { "title": "Current Course Detail Page", "visualDirection": "pixel-perfect reproduction (baseline)" },
+        "d02d4b62-8973-4061-bd3a-562137191036": { "title": "Course Detail - bordered module cards", "visualDirection": "SUPERSEDED — Editorial Tech, cards + ledger quiz rows" },
+        "377f45fd-91a8-4acf-ac26-71bd3729508a": { "title": "Course Detail - numbered editorial list", "visualDirection": "SUPERSEDED — Editorial Tech, spacious single-column, numbered modules" },
+        "86354a64-ba00-4363-930e-df79de0cb458": { "title": "Midnight Editorial - Course Detail (Dark Mode)", "visualDirection": "Midnight Editorial, DARK mode, module cards + quiz status badges", "parentDraftId": "545c3b80-4e6e-481e-8bd5-9c98a7295166" },
+        "e0b64ab0-1920-447e-a030-b95c7b6e4207": { "title": "Course Detail (Daylight Editorial)", "visualDirection": "Midnight Editorial, LIGHT mode, same structure as dark", "parentDraftId": "545c3b80-4e6e-481e-8bd5-9c98a7295166" }
+      }
+    },
+    "/quizzes/:quizId": {
+      "targetKind": "existing-ui",
+      "projectId": "d7ef7897-81fb-46b3-9e11-b4dcaa47fb33",
+      "baselineDraftId": "c1cd0ab1-e95a-4fe4-af5d-c3df787eb972",
+      "activeDraftId": "9aba21aa-5ed3-480b-8f60-598864f3b61c",
+      "designSystemPath": ".superdesign/design-system.md",
+      "contextFiles": [
+        ".superdesign/design-system.md",
+        "frontend/src/pages/QuizPage.jsx",
+        "frontend/src/index.css"
+      ],
+      "fingerprints": {
+        ".superdesign/design-system.md": "802478439825f11930559812e62740ca5d1fa210f7088aa90d790d9d0b09f9d0",
+        "frontend/src/pages/QuizPage.jsx": "e100f232c0d50f2c8cc2621a44a508134d89d41495467701127b1a900c7182d8",
+        "frontend/src/index.css": "fda85fffe7f006d822fb9ab4e774b9e2b8fadffa73a3806b038dc0b8456cbbeb"
+      },
+      "drafts": {
+        "c1cd0ab1-e95a-4fe4-af5d-c3df787eb972": { "title": "Current Quiz Page", "visualDirection": "pixel-perfect reproduction (baseline, static+adaptive+result states)" },
+        "1d08330c-b7fd-4b2c-b660-d6f77a1e8f9c": { "title": "Quiz - card questions, touch-friendly", "visualDirection": "SUPERSEDED — Editorial Tech, numbered question cards" },
+        "10e2b0d4-9306-4643-ac09-b483cb7e2958": { "title": "Quiz - exam-paper ruled list", "visualDirection": "SUPERSEDED — Editorial Tech, minimal exam-paper flowing list" },
+        "9aba21aa-5ed3-480b-8f60-598864f3b61c": { "title": "Midnight Editorial Quiz Experience", "visualDirection": "Midnight Editorial, DARK mode, all 3 quiz states", "parentDraftId": "c1cd0ab1-e95a-4fe4-af5d-c3df787eb972" },
+        "c7c4d073-86eb-485e-b3ab-d86181a200b1": { "title": "Quiz States - Daylight Editorial", "visualDirection": "Midnight Editorial, LIGHT mode, same structure as dark", "parentDraftId": "c1cd0ab1-e95a-4fe4-af5d-c3df787eb972" }
+      }
+    },
+    "/verify/:certificateId": {
+      "targetKind": "existing-ui",
+      "projectId": "d7ef7897-81fb-46b3-9e11-b4dcaa47fb33",
+      "baselineDraftId": "ac2d753e-8926-4778-a169-80b3936ecbba",
+      "activeDraftId": "fa351a38-7b7b-4c42-b4d0-beb5473b6c22",
+      "designSystemPath": ".superdesign/design-system.md",
+      "contextFiles": [
+        ".superdesign/design-system.md",
+        "frontend/src/pages/VerifyPage.jsx",
+        "frontend/src/index.css"
+      ],
+      "fingerprints": {
+        ".superdesign/design-system.md": "802478439825f11930559812e62740ca5d1fa210f7088aa90d790d9d0b09f9d0",
+        "frontend/src/pages/VerifyPage.jsx": "fc2c99e9bfffd96f47b4bafb4052dc64e864b42d171e3464878150395227ec1b",
+        "frontend/src/index.css": "fda85fffe7f006d822fb9ab4e774b9e2b8fadffa73a3806b038dc0b8456cbbeb"
+      },
+      "drafts": {
+        "ac2d753e-8926-4778-a169-80b3936ecbba": { "title": "Current Verify Page", "visualDirection": "pixel-perfect reproduction (baseline, verified+not-found states)" },
+        "b43828eb-626f-4b42-b1ca-9afaa3bcc8c0": { "title": "Verify - seal/ledger record + cert-earned panel", "visualDirection": "SUPERSEDED — Editorial Tech, verified seal + data ledger rows" },
+        "7830cb2c-ef3b-42c9-97a0-2c1aa3b6d9fa": { "title": "Verify - bordered document panel + cert-earned panel", "visualDirection": "SUPERSEDED — Editorial Tech, physical-certificate-style bordered panel" },
+        "fa351a38-7b7b-4c42-b4d0-beb5473b6c22": { "title": "Verification - Midnight Editorial", "visualDirection": "Midnight Editorial, DARK mode, verified/not-found + cert-earned panel", "parentDraftId": "ac2d753e-8926-4778-a169-80b3936ecbba" },
+        "05ce146f-cfc5-414d-861d-f5b15b4342a2": { "title": "Certificate Verification - Daylight Editorial", "visualDirection": "Midnight Editorial, LIGHT mode, same structure as dark", "parentDraftId": "ac2d753e-8926-4778-a169-80b3936ecbba" }
+      }
+    }
+  }
+}

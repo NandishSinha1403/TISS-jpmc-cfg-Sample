@@ -3,13 +3,37 @@ returns bytes out, so it stays testable and swappable independent of storage."""
 
 import io
 from datetime import datetime
+from pathlib import Path
 
 import qrcode
+from reportlab.graphics import renderPDF
 from reportlab.lib.pagesizes import landscape, A4
 from reportlab.lib.units import cm
+from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
+from svglib.svglib import svg2rlg
 
 from app.core.config import settings
+
+LOGO_PATH = Path(__file__).resolve().parents[3] / "assets" / "Tata_Institute_of_Social_Sciences_Logo.svg"
+LOGO_HEIGHT = 2.2 * cm
+
+
+def _draw_logo(c: canvas.Canvas, center_x: float, top_y: float) -> None:
+    if not LOGO_PATH.exists():
+        return
+
+    drawing = svg2rlg(str(LOGO_PATH))
+    if drawing is None or not drawing.height:
+        return
+
+    scale = LOGO_HEIGHT / drawing.height
+    logo_width = drawing.width * scale
+    drawing.width = logo_width
+    drawing.height = LOGO_HEIGHT
+    drawing.scale(scale, scale)
+
+    renderPDF.draw(drawing, c, center_x - logo_width / 2, top_y - LOGO_HEIGHT)
 
 
 def render_certificate_pdf(
@@ -30,27 +54,27 @@ def render_certificate_pdf(
     c.setLineWidth(2)
     c.rect(1 * cm, 1 * cm, width - 2 * cm, height - 2 * cm)
 
+    _draw_logo(c, width / 2, height - 1.6 * cm)
+
     c.setFont("Helvetica-Bold", 28)
-    c.drawCentredString(width / 2, height - 4 * cm, "Certificate of Completion")
+    c.drawCentredString(width / 2, height - 5.4 * cm, "Certificate of Completion")
 
     c.setFont("Helvetica", 14)
-    c.drawCentredString(width / 2, height - 6 * cm, "This certifies that")
+    c.drawCentredString(width / 2, height - 7.2 * cm, "This certifies that")
 
     c.setFont("Helvetica-Bold", 22)
-    c.drawCentredString(width / 2, height - 7.2 * cm, learner_name)
+    c.drawCentredString(width / 2, height - 8.4 * cm, learner_name)
 
     c.setFont("Helvetica", 14)
-    c.drawCentredString(width / 2, height - 8.6 * cm, "has successfully completed the course")
+    c.drawCentredString(width / 2, height - 9.8 * cm, "has successfully completed the course")
 
     c.setFont("Helvetica-Bold", 18)
-    c.drawCentredString(width / 2, height - 9.8 * cm, course_title)
+    c.drawCentredString(width / 2, height - 11 * cm, course_title)
 
     c.setFont("Helvetica", 11)
-    c.drawCentredString(width / 2, height - 11 * cm, f"Issued: {issued_at.strftime('%d %B %Y')}")
+    c.drawCentredString(width / 2, height - 12.2 * cm, f"Issued: {issued_at.strftime('%d %B %Y')}")
 
     qr_size = 3 * cm
-    from reportlab.lib.utils import ImageReader
-
     c.drawImage(
         ImageReader(qr_buffer),
         width - 4.5 * cm,
