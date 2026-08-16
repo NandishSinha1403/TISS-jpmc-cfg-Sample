@@ -50,6 +50,7 @@ frontend/src/
 - JWT payload: `sub` (user id), `role`, `exp`. Sent as `Authorization: Bearer <token>`.
 - Backend: `core/security.py` (hashing via `bcrypt` directly — passlib's bcrypt backend is broken on bcrypt>=4.1, do not reintroduce it), `core/deps.py` (`get_current_user`, `require_role(*roles)` for role-gated routes).
 - Frontend: token persisted in `localStorage`, restored on load via `/auth/me`.
+- Seed the local admin with `cd backend && python -m scripts.seed_admin` (login: `nandish@tiss.edu` / `admin101`). Login requires a valid email format, so `nandish` alone can't be used as the login value.
 
 ## Conventions
 
