@@ -21,7 +21,7 @@ Status as of this session. "Done" = fully working AND committed to git.
 
 Inserted between steps 7 and 8 at your request — not one of the original 10 numbered steps.
 
-**Built and working (verified in-browser this session):**
+**Built, tested, and committed** (`31a1efd` — "Add Midnight/Daylight Editorial redesign for dashboard, course, quiz, verify"):
 - Design system defined in `.superdesign/design-system.md` (dark "Midnight" + light "Daylight" token pairs, both accessibility-checked for 4.5:1 contrast)
 - Light/dark toggle in header, persisted via `localStorage`, keyboard-operable
 - Custom decorative cursor (desktop/`pointer: fine` only, shrinks on button hover; buttons invert white on hover instead)
@@ -29,11 +29,10 @@ Inserted between steps 7 and 8 at your request — not one of the original 10 nu
 - Certificate PDF now embeds the real TISS logo (was text-only before)
 
 **Incomplete / not yet done:**
-- ⚠️ **This session's redesign code is NOT YET COMMITTED to git.** `git status` shows modified/new files (App.jsx, index.css, main.jsx, CourseDetailPage.jsx, QuizPage.jsx, VerifyPage.jsx, new components, new pages) sitting uncommitted in the working tree.
 - 4 pages still unmigrated, plain styling: Login, Signup, Courses list, Admin course management. They work, they're just visually behind the other 4.
 - Dashboard looks sparse in testing because only 1 course was seeded — not a design flaw, just thin test data (flagged, not yet acted on).
 
-**Immediate next action:** commit the redesign work (it's tested and working — no reason to leave it uncommitted), then decide: migrate the remaining 4 pages now, or move on to step 8.
+**Immediate next action:** decide — migrate the remaining 4 pages now, or move on to step 8.
 
 ## Blockers / open questions for you to decide
 
