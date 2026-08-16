@@ -73,6 +73,12 @@ frontend/src/
 - Scoring at session finalize must use only the *asked* questions (`session.asked_question_ids`), not the full quiz question pool — caught and fixed a bug here during testing where the denominator was wrong.
 - Frontend: `QuizPage` branches on `quiz.adaptive` between `StaticQuiz` (existing all-at-once form) and `AdaptiveQuiz` (one question at a time, calls `/start` then `/answer` per question).
 
+## Progress tracking
+
+- `ModuleCompletion` (unique per user+module) is learner-initiated via `POST /modules/{id}/complete` — completion is not inferred from viewing a page, since that can't be verified server-side without much more instrumentation than an MVP needs.
+- `GET /courses/{id}/progress` returns `pct_complete` (modules completed/total), `completed_module_ids` (so the frontend can render per-module state), and per-quiz progress using the learner's **best** attempt, not the latest — a worse retake must never downgrade a prior pass. `QuizAttempt` rows already exist from the assessments feature; this reads them, doesn't duplicate them.
+- Frontend: `CourseDetailPage` now fetches course + quizzes + progress together, shows a "Mark as complete" button per module (disabled once done) and best-score/pass-fail next to each quiz link.
+
 ## Conventions
 
 - Routes never contain business logic — call a `services/` function.
