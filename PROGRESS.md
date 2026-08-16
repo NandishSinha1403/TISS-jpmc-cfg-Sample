@@ -13,9 +13,9 @@ Status as of this session. "Done" = fully working AND committed to git.
 | 5 | Adaptive quiz difficulty | ✅ Done |
 | 6 | Progress tracking | ✅ Done |
 | 7 | Credentialed certification (UUID + PDF + QR + verify) | ✅ Done |
-| 8 | Skill-gap → job-readiness matcher | ⬜ Not started |
-| 9 | Auto-generated practice questions (LLM) | ⬜ Not started |
-| 10 | Peer-benchmarking | ⬜ Not started |
+| 8 | Skill-gap → job-readiness matcher | ✅ Backend done, no UI yet |
+| 9 | Auto-generated practice questions (LLM) | ⬜ On hold — awaiting LLM provider decision |
+| 10 | Peer-benchmarking | ✅ Backend done, no UI yet |
 
 ## Done: full Impeccable design pass (Midnight/Daylight Editorial)
 
@@ -33,16 +33,31 @@ Inserted between steps 7 and 8 at your request — not one of the original 10 nu
 
 **Not verified live**: the Claude-in-Chrome browser extension was unavailable/removed for this entire design phase. Everything was verified via clean builds, 0-finding detector scans, and direct backend curl tests (for the certificate/review logic specifically). A manual visual pass at `localhost:5173` across light/dark × mobile/tablet/desktop is still worth doing before calling this fully signed off — flagged in every relevant commit message, not silently skipped.
 
-## Next: steps 8-10 (backend/logic first, no UI, per your sequencing)
+## Steps 8 & 10: done, backend/logic only, no UI (per your sequencing)
 
-1. **Skill-gap → job-readiness matcher** — needs skill categories and 3-5 sample job profiles with weighted requirements defined/approved before building (per "ask before inventing business logic")
-2. **Auto-generated practice questions (LLM)** — needs an LLM provider decision (OpenAI, Anthropic, etc.) and API key before this can be built
-3. **Peer-benchmarking** — plain SQL aggregation, no blockers identified yet
+**Step 8 — skill-gap → job-readiness matcher** (commit `8ee6d45`):
+- 5 skill categories, 5 sample job profiles with weighted requirements — proposed and confirmed with you before implementation
+- Explainable weighted-average scoring (`app/ml/skill_gap.py`), no ML model
+- `Quiz.skill_category` tags a quiz; `GET /users/me/skill-gap` returns category scores + job readiness with a "focus next on X" recommendation
+- Verified end-to-end via curl, weighted-readiness math hand-checked against the formula
 
-After steps 8-10 are backend-complete: a final design round for the new UI they need (results card, practice-question panel, percentile display) plus one more full-app polish pass.
+**Step 10 — peer-benchmarking** (commit `a7e75ec`):
+- Plain SQL aggregation (mean-percentile-rank), no ML, per the original spec
+- `GET /quizzes/{id}/benchmark` and `GET /courses/{id}/benchmark`
+- Verified end-to-end via curl with a real multi-learner cohort, percentile math hand-checked
+
+**Step 9 — auto-generated practice questions (LLM): on hold**, awaiting your LLM provider decision (Anthropic vs OpenAI vs other) and an API key.
+
+## Next: UI for steps 8 & 10, or step 9 backend, or both
+
+Per the agreed plan: a design round for the new UI these features need (skill-gap results card, percentile display — practice-question panel waits on step 9) plus one more full-app polish pass. Your call on ordering:
+
+1. **Design + build UI for steps 8 & 10 now**, leave step 9 for later once you've decided on an LLM provider
+2. **Decide the LLM provider first**, do all three backends' UI in one design round
+3. Something else — your call
 
 ## Open questions for you to decide
 
-1. **Skill categories/job profiles for step 8** — see above, need your input before starting.
-2. **LLM provider for step 9** — see above, need your decision + API key before starting.
-3. **Live visual sign-off** — worth doing a manual browser pass before demo day, given the extension was unavailable for this whole phase.
+1. **LLM provider for step 9** — Anthropic, OpenAI, or hold off entirely for now.
+2. **UI ordering** — see above.
+3. **Live visual sign-off** — worth doing a manual browser pass before demo day, given the extension was unavailable for the entire design phase plus steps 8/10.
