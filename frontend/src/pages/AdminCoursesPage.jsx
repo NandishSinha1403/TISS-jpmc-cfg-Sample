@@ -147,7 +147,7 @@ function QuizManager({ courseId }) {
 
   return (
     <div className="admin-section">
-      <h4 className="admin-section-title">Quizzes</h4>
+      <h3 className="admin-section-title">Quizzes</h3>
       {quizzes.length === 0 && <p className="admin-empty">No quizzes yet.</p>}
       <div className="admin-row-list">
         {quizzes.map((quiz) => (
@@ -268,7 +268,7 @@ function CourseRow({ course, onChanged }) {
       {expanded && detail && (
         <div className="admin-row-body">
           <div className="admin-section">
-            <h4 className="admin-section-title">Modules</h4>
+            <h3 className="admin-section-title">Modules</h3>
             {detail.modules.length === 0 && <p className="admin-empty">No modules yet.</p>}
             <ul className="admin-plain-list">
               {detail.modules.map((m) => (
@@ -324,7 +324,7 @@ export default function AdminCoursesPage() {
       <h1>Manage courses</h1>
 
       <div className="card admin-create-card">
-        <h3>New course</h3>
+        <h2>New course</h2>
         <form onSubmit={handleCreate} className="field-list">
           <input
             placeholder="Course title"

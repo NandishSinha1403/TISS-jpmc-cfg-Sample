@@ -10,6 +10,7 @@
   --color-fg-decorative: #444444;
   --color-accent: #ff6b50;
   --color-accent-fg: #050505;
+  --color-link: #ff6b50;
   --color-border: rgba(255, 255, 255, 0.12);
   --color-success: #4ade80;
   --color-success-bg: rgba(74, 222, 128, 0.15);
@@ -47,7 +48,8 @@
   --color-fg-muted: #4a4a46;
   --color-fg-decorative: #b4b4b4;
   --color-accent: #e5502f;
-  --color-accent-fg: #ffffff;
+  --color-accent-fg: #000000;
+  --color-link: #c73f22;
   --color-border: rgba(28, 28, 28, 0.12);
   --color-success: #1e7a4c;
   --color-success-bg: rgba(30, 122, 76, 0.1);
@@ -145,7 +147,7 @@ p {
 }
 
 a {
-  color: var(--color-accent);
+  color: var(--color-link);
   text-decoration: none;
 }
 
