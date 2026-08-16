@@ -86,6 +86,18 @@ frontend/src/
 - PDF generation is isolated in `certificate_pdf.py` (reportlab + qrcode, pure function: values in, bytes out) — kept separate from `certificate_service.py`'s DB/business logic, same isolation principle as `app/ml/`. The QR code points at `FRONTEND_BASE_URL/verify/{uuid}` (a human-facing page), not the API.
 - `GET /verify/{uuid}` is public/unauthenticated by design and returns 404 (not a 500) on any invalid or unknown UUID. `GET /certificates/{id}/pdf` is auth-required and checks ownership (or admin) before serving — verified a second learner gets 404, not another learner's PDF.
 - Frontend: public `/verify/:certificateId` route (outside `RequireAuth`), and a "Download certificate" button on `CourseDetailPage` once earned — the PDF fetch attaches the JWT manually (can't use a plain `<a href>` for an authenticated binary download) and triggers a blob-URL save.
+- Certificate PDF embeds the real TISS logo (`assets/Tata_Institute_of_Social_Sciences_Logo.svg`) via `svglib` (`svg2rlg` → `reportlab.graphics.renderPDF`), not a placeholder — see `_draw_logo` in `certificate_pdf.py`.
+
+## Design system: Midnight/Daylight Editorial (UI redesign, in progress)
+
+- Designed via the **Superdesign** CLI (not any other tool) — style direction, palette, and component patterns live in `.superdesign/design-system.md`; draft history/resume state in `.superdesign/resume.json`. See `DESIGN.md` for the current summary.
+- Two token sets, one structural layout: dark ("Midnight," default, `#050505` bg / `#FF6B50` coral accent) and light ("Daylight," `#f7f6f2` bg / `#E5502F` accent), switched via `data-theme` attribute on `<html>`, persisted to `localStorage` (`tiss_theme` key) through `frontend/src/context/ThemeContext.jsx`. All colors are CSS custom properties in `frontend/src/index.css` — never hardcode a hex value in a component; both modes must keep working from the same markup.
+- New shared components (first real component vocabulary in this app — previously every page hand-rolled raw HTML): `AppHeader` (glass nav, logo, nav links, `ThemeToggle`, user identity/logout — renders a minimal logo-only version when `user` is null, e.g. on the public verify page), `ThemeToggle`, `CustomCursor`, `ProgressBar`, `StatusBadge`.
+- `CustomCursor` (`frontend/src/components/CustomCursor.jsx`): 32px circle, `mix-blend-mode: difference`, `requestAnimationFrame` + lerp follow. Gated on `matchMedia('(pointer: fine)')` checked once at mount — does not render or attach any listener on touch devices. On hovering `a`/`button` it shrinks toward near-invisible (`scale(0.1)`, tuned down from an original scale-up design after visual review) so the *target element's own hover state* (a white/black invert on `.btn`, `.theme-toggle`, plain `<button>`) carries the affordance instead of the cursor itself.
+- `DashboardPage` (new home route, replaces the old inline `HomePage` in `App.jsx`) aggregates `listCourses()` + per-course `getCourseProgress()` + `getCourseCertificate()` client-side — there is no dedicated "my dashboard" backend endpoint, and none is needed for this.
+- **Migrated to the new system**: Dashboard (`/`), `CourseDetailPage`, `QuizPage`, `VerifyPage`.
+- **Not yet migrated** (still plain, held together by fallback rules in `index.css` — `#center`, unclassed `<button>`): `LoginPage`, `SignupPage`, `CoursesPage`, `AdminCoursesPage`. They're functional and legible, just visually behind the other four screens.
+- See `PROGRESS.md` for current status and `DECISIONS.md` for why Superdesign/this direction was chosen.
 
 ## Conventions
 
