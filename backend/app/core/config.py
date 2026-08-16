@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     jwt_expire_minutes: int = 60 * 24
     cors_origins: str = "http://localhost:5173"
     frontend_base_url: str = "http://localhost:5173"
+    openrouter_api_key: str = ""
+    openrouter_model: str = "openai/gpt-oss-20b:free"
 
     @property
     def cors_origins_list(self) -> list[str]:

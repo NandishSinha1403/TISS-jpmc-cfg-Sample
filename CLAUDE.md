@@ -98,6 +98,15 @@ frontend/src/
 - Verified via curl end-to-end: category averaging, weighted readiness math, and focus-next selection all hand-checked against the formulas.
 - No frontend yet — per explicit sequencing, this is backend/logic first; UI (results card, practice-question panel, percentile display) comes in a later design round alongside steps 9-10.
 
+## Auto-generated practice questions (backend only, no UI yet)
+
+- Provider: **OpenRouter**, OpenAI-compatible endpoint — uses the standard `openai` Python SDK with `base_url` pointed at `https://openrouter.ai/api/v1`, not a distinct SDK. Model is configurable via `OPENROUTER_MODEL` (default `openai/gpt-oss-20b:free`) — no DeepSeek model is currently free on OpenRouter (verified live against their API, not a blog post, before picking a model).
+- `app/ml/practice_questions.py` owns the actual LLM call, prompt construction, and response parsing (never imported directly by routers, per the `app/ml/` isolation convention). Raises a single `PracticeQuestionGenerationError` for every failure mode — missing API key, rate limit, timeout, provider error, empty response, unparseable/malformed JSON — so the router has exactly one exception to catch and map to a clean `503`, never a raw crash.
+- `services/practice_question_service.py` only owns fetching the module and bounding the requested count (max 10 per request) — no LLM-specific logic leaks into the service layer.
+- `POST /modules/{id}/practice-questions` (body: `{"count": N}`, default 5) → `503 "Practice questions are unavailable right now..."` on any generation failure, `404` if the module doesn't exist. Verified via curl with no API key configured (the real-world "provider down" case) — returns a clean 503, not a crash.
+- Response parsing handles markdown code-fenced JSON (models often wrap output in ` ```json ` blocks despite instructions not to) and validates every question's shape (`text`, `options` list, `correct_index` in range) before returning anything — a single malformed question in the model's response fails the whole batch rather than silently serving broken data.
+- No frontend yet, and generated questions are **not persisted** — they're generated fresh on demand each time, matching the original spec ("generate N additional practice questions on demand").
+
 ## Peer-benchmarking (backend only, no UI yet)
 
 - Plain SQL aggregation, deliberately no ML — percentile rank is fully explainable and doesn't need a model, per the original spec ("don't over-engineer").
