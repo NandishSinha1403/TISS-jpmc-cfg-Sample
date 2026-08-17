@@ -54,6 +54,65 @@ All of this can also be done directly against the API via http://localhost:8000/
 
 Uses OpenRouter (`openai/gpt-oss-20b:free`, a free-tier model) to generate extra practice questions from a module's content on demand. Requires `OPENROUTER_API_KEY` in `backend/.env` — without it, the feature degrades gracefully (a clear "unavailable right now" state, not a crash). Get a free key at https://openrouter.ai.
 
+## Deploying to production (`tiss.nandish.dev`)
+
+Vercel alone isn't enough: it runs stateless serverless functions with no persistent disk, so a long-running FastAPI process backed by a SQLite file can't live there. Split it:
+
+- **Frontend → Vercel**, custom domain `tiss.nandish.dev`
+- **Backend → Render** (free web service), a real always-running server
+
+### 1. Push to GitHub
+
+```bash
+git add -A
+git commit -m "your message"
+git push origin main
+```
+
+(You've already got this repo connected to GitHub from earlier — same flow.)
+
+### 2. Backend on Render
+
+`render.yaml` at the repo root already describes the service (build/start commands, health check, env vars) — Render will pick it up automatically via **New → Blueprint**, pointed at this repo. Or configure a **New → Web Service** manually:
+
+- Root directory: `backend`
+- Build command: `pip install -r requirements.txt`
+- Start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+- Health check path: `/health`
+- Env vars (set in the Render dashboard, never commit these):
+  - `JWT_SECRET_KEY` — a real random secret, not the dev placeholder (`render.yaml` auto-generates one via Blueprint deploy)
+  - `CORS_ORIGINS=https://tiss.nandish.dev`
+  - `FRONTEND_BASE_URL=https://tiss.nandish.dev` (this is what gets embedded in certificate QR codes)
+  - `OPENROUTER_API_KEY` — your real key, if you want practice questions live
+  - `DATABASE_URL` — leave as `sqlite:///./tiss.db` for now (see the disk caveat below)
+
+After the first deploy, note the Render URL it gives you (e.g. `https://tiss-backend.onrender.com`). Seed it once via Render's **Shell** tab:
+
+```bash
+python -m scripts.seed_admin
+python -m scripts.seed_sample_courses
+```
+
+**Disk caveat**: Render's free plan has no persistent disk — the SQLite file survives sleep/wake but resets on every redeploy. Fine for a hackathon demo; if you need data to survive redeploys, either add Render's paid persistent disk, or migrate `DATABASE_URL` to their free Postgres add-on (expires after 90 days on the free tier). Not done here — flagging it as a decision, not solving it preemptively.
+
+### 3. Frontend on Vercel
+
+- Import this repo into a new Vercel project
+- Root directory: `frontend`
+- Framework preset: Vite (auto-detected)
+- Env var: `VITE_API_BASE_URL=https://tiss-backend.onrender.com` (your real Render URL from step 2)
+- `frontend/vercel.json` is already in the repo — it rewrites all paths to `index.html` so client-side routes like `/verify/:certificateId` don't 404 on a hard refresh
+
+Then **Project Settings → Domains → Add** `tiss.nandish.dev`. Vercel will show you a CNAME target (usually `cname.vercel-dns.com`) — add that as a CNAME record for the `tiss` subdomain in your `nandish.dev` DNS provider. Propagation is usually minutes, sometimes up to ~an hour.
+
+### 4. Keep Render from sleeping
+
+Render's free web services spin down after ~15 minutes idle, so the first request after a lull is slow (cold start). `.github/workflows/keep-alive.yml` is already in the repo — it pings `/health` every 10 minutes via GitHub Actions, which is enough to keep it warm. Wire it up once the backend is deployed:
+
+- Repo → **Settings → Secrets and variables → Actions → Variables** → add `BACKEND_URL` = your Render URL (e.g. `https://tiss-backend.onrender.com`)
+
+That's it — the workflow is already scheduled and will just start working once the variable exists.
+
 ## More detail
 
 - `SETUP.md` — manual setup, env vars, common gotchas
