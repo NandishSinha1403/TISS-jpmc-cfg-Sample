@@ -1,0 +1,4 @@
+logs/
+.backend.pid
+.frontend.pid
+.DS_Store

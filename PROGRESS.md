@@ -50,7 +50,7 @@ Inserted between steps 7 and 8 at your request — not one of the original 10 nu
 - Provider: OpenRouter (OpenAI-compatible endpoint, standard `openai` SDK), model `openai/gpt-oss-20b:free` — confirmed with you after verifying live that no DeepSeek model is currently free on OpenRouter
 - `POST /modules/{id}/practice-questions` — generates fresh on demand, not persisted
 - Graceful failure verified end-to-end (503, not a crash) with no API key configured; parsing logic unit-tested (clean/fenced/malformed JSON, count truncation)
-- **Not yet verified**: an actual successful generation call — needs a real `OPENROUTER_API_KEY` in `.env`, which you're providing
+- **Now fully verified live**: with your real `OPENROUTER_API_KEY` in `.env`, ran an actual end-to-end call — created a test module with real content on "active listening," requested 3 questions, got a real HTTP 200 with 3 well-formed, content-relevant multiple-choice questions from `openai/gpt-oss-20b:free` (correct schema, valid `correct_index` values, genuinely testing comprehension of the module content, not trivia). Test course/module deleted afterward.
 
 ## All of steps 8-10 are backend-complete. Next: one design round for their UI
 
@@ -58,6 +58,6 @@ Per the agreed plan: a design round for the new UI these three features need (sk
 
 ## Open questions for you to decide
 
-1. **Add your `OPENROUTER_API_KEY` to `backend/.env`** so step 9 can be tested end-to-end for real — currently blank.
+1. ~~Add your `OPENROUTER_API_KEY` to `backend/.env`~~ — done, verified live.
 2. **Live visual sign-off** — worth doing a manual browser pass before demo day, given the extension was unavailable for the entire design phase plus steps 8-10.
 3. **When to start the UI design round** for the 3 new features — now, or after something else?
