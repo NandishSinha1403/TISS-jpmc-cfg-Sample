@@ -10,6 +10,7 @@ learner and pass all quizzes in a course to see one issued for real.
 """
 
 from app.core.database import Base, SessionLocal, engine
+from app.models import certificate, progress, user  # noqa: F401 — registers all tables before create_all
 from app.models.assessment import Question, Quiz, SkillCategory
 from app.models.course import Course, Module
 
